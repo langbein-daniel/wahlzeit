@@ -27,7 +27,7 @@ import org.wahlzeit.main.ServiceMain;
 import org.wahlzeit.services.*;
 
 /**
- * A simple ServletContextListener to startup and shutdown the Flowers application.
+ * A simple ServletContextListener to startup and shutdown the Landscape application.
  */
 public class Wahlzeit implements ServletContextListener {
 	
