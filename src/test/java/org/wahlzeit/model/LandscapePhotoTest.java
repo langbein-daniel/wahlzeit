@@ -1,6 +1,7 @@
 package org.wahlzeit.model;
 
 import org.junit.Test;
+import org.wahlzeit.model.location.Location;
 
 import static org.junit.Assert.*;
 
@@ -36,5 +37,19 @@ public class LandscapePhotoTest {
         Photo photo = PhotoFactory.getInstance().createPhoto();
 
         assertTrue(photo instanceof LandscapePhoto);
+    }
+
+    @Test
+    public void testDefaultLocation(){
+        /*
+         * Both singletons of PhotoManager and PhotoFactory are created inside ModelMain.startUp() by the following two calls:
+         */
+        LandscapePhotoFactory.initialize();
+        LandscapePhotoManager.initialize();
+
+        Photo photo = PhotoFactory.getInstance().createPhoto();
+        Location location = photo.getLocation();
+
+        assertEquals(Location.DEFAULT_LOCATION, location);
     }
 }

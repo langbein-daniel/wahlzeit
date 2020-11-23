@@ -2,6 +2,7 @@ package org.wahlzeit.model;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.wahlzeit.model.location.Coordinate;
 
 import static org.junit.Assert.*;
 
