@@ -26,6 +26,7 @@ import org.wahlzeit.services.*;
  * A Main class that serves to run scripts (and exit afterwards).
  */
 public abstract class ScriptMain extends ModelMain {
+	public static final String ROOT_DIR = "web";
 	
 	/**
 	 * 
@@ -40,7 +41,7 @@ public abstract class ScriptMain extends ModelMain {
 		handleArgv(argv);
 		
 		try {
-			startUp("web");
+			startUp(ROOT_DIR);
 			execute();
 		} catch(Exception ex) {
 			SysLog.logThrowable(ex);
@@ -56,7 +57,7 @@ public abstract class ScriptMain extends ModelMain {
 	/**
 	 * 
 	 */
-	protected void handleArgv(String argv[]) {
+	protected void handleArgv(String[] argv) {
 		for (int i = 0; i < argv.length; i++) {
 			i = handleArg(argv[i], i, argv);
 		}
@@ -65,7 +66,7 @@ public abstract class ScriptMain extends ModelMain {
 	/**
 	 * 
 	 */
-	protected int handleArg(String arg, int i, String argv[]) {
+	protected int handleArg(String arg, int i, String[] argv) {
 		if (arg.equals("-S") || arg.equals("--setup")) {
 			isToSetUpDatabase = true;
 		} else if (arg.equals("-T") || arg.equals("--teardown")) {

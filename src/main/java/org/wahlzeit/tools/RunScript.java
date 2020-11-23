@@ -42,7 +42,7 @@ public class RunScript extends ScriptMain {
 	/**
 	 * 
 	 */
-	protected int handleArg(String arg, int i, String argv[]) {
+	protected int handleArg(String arg, int i, String[] argv) {
 		scriptName = arg;
 		
 		return i;
@@ -56,5 +56,4 @@ public class RunScript extends ScriptMain {
 		
 		runScript(scriptName);
 	}
-	
 }
