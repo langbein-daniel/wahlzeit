@@ -1,14 +1,22 @@
 package org.wahlzeit.model;
 
+import org.wahlzeit.services.DataObject;
+import org.wahlzeit.utils.DoubleUtil;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
 
 /**
  * Cartesian Coordinate
- *
+ * <p>
  * Center of coordinate-system: Center of mass of the Earth
  * Unit (of x, y, z values): Meters
  */
-public class Coordinate {
+public class Coordinate extends DataObject {
+    public static final double EPSILON = 0.001; /* epsilon for double rounding errors */
+
     /**
      * x-direction: In plane of Earth (latitude at 0 degrees);
      * from -180 to 0 degrees longitude
@@ -25,8 +33,10 @@ public class Coordinate {
     protected double z = 0.0;
 
     public Coordinate() {
+        incWriteCount();
     }
-    public Coordinate(double x, double y, double z){
+
+    public Coordinate(double x, double y, double z) {
         setX(x);
         setY(y);
         setZ(z);
@@ -57,6 +67,7 @@ public class Coordinate {
      */
     public void setX(double x) {
         this.x = x;
+        incWriteCount();
     }
 
     /**
@@ -71,6 +82,7 @@ public class Coordinate {
      */
     public void setY(double y) {
         this.y = y;
+        incWriteCount();
     }
 
     /**
@@ -85,6 +97,7 @@ public class Coordinate {
      */
     public void setZ(double z) {
         this.z = z;
+        incWriteCount();
     }
 
     /**
@@ -104,9 +117,11 @@ public class Coordinate {
      * @methodproperties primitive
      */
     public boolean isEqual(Coordinate other) {
-        return Double.compare(other.x, x) == 0 &&
-                Double.compare(other.y, y) == 0 &&
-                Double.compare(other.z, z) == 0;
+        return DoubleUtil.isEqual(other.x, x, EPSILON) &&
+                DoubleUtil.isEqual(other.y, y, EPSILON) &&
+                DoubleUtil.isEqual(other.z, z, EPSILON);
+
+        // alternative: return DoubleUtil.isEqual(getDistance(other), 0.0, EPSILON);
     }
 
     /**
@@ -116,5 +131,31 @@ public class Coordinate {
     @Override
     public int hashCode() {
         return Objects.hash(x, y, z);
+    }
+
+    //=== Persistence Methods ===
+
+    @Override
+    public String getIdAsString() {
+        return null; // A Coordinate object hast no ID. It is always part of a Photo.
+    }
+
+    @Override
+    public void readFrom(ResultSet rset) throws SQLException {
+        x = rset.getDouble("coordinate_x");
+        y = rset.getDouble("coordinate_y");
+        z = rset.getDouble("coordinate_z");
+    }
+
+    @Override
+    public void writeOn(ResultSet rset) throws SQLException {
+        rset.updateDouble("coordinate_x", x);
+        rset.updateDouble("coordinate_y", y);
+        rset.updateDouble("coordinate_z", z);
+    }
+
+    @Override
+    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
+        // nothing to do; Coordinate object has no ID.
     }
 }

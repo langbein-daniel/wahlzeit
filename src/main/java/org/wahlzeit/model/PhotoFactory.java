@@ -32,7 +32,7 @@ public class PhotoFactory {
 	/**
 	 * Hidden singleton instance; needs to be initialized from the outside.
 	 */
-	private static PhotoFactory instance = null;
+	protected static PhotoFactory instance = null;
 	
 	/**
 	 * Public singleton access method.

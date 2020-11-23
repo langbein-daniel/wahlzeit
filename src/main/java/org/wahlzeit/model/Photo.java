@@ -130,6 +130,11 @@ public class Photo extends DataObject {
         readFrom(rset);
     }
 
+    @Override
+    public boolean isDirty(){
+        return super.isDirty() || location.isDirty();
+    }
+
     /**
      * @methodtype get
      */
@@ -155,11 +160,8 @@ public class Photo extends DataObject {
         height = rset.getInt("height");
 
         tags = new Tags(rset.getString("tags"));
+        location.readFrom(rset);
 
-        double coordinate_x = rset.getDouble("coordinate_x");
-        double coordinate_y = rset.getDouble("coordinate_y");
-        double coordinate_z = rset.getDouble("coordinate_z");
-        location = new Location(coordinate_x, coordinate_y, coordinate_z);
 
         status = PhotoStatus.getFromInt(rset.getInt("status"));
         praiseSum = rset.getInt("praise_sum");
@@ -188,10 +190,7 @@ public class Photo extends DataObject {
         rset.updateInt("praise_sum", praiseSum);
         rset.updateInt("no_votes", noVotes);
         rset.updateLong("creation_time", creationTime);
-        rset.updateDouble("coordinate_x", location.getCoordinate().x);
-        rset.updateDouble("coordinate_y", location.getCoordinate().y);
-        rset.updateDouble("coordinate_z", location.getCoordinate().z);
-
+        location.writeOn(rset);
     }
 
     /**

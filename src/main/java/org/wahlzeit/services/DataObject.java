@@ -39,7 +39,7 @@ public abstract class DataObject implements Persistent {
 	/**
 	 * 
 	 */
-	public final boolean isDirty() {
+	public boolean isDirty() {
 		return writeCount != 0;
 	}
 	

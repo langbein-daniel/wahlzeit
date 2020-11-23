@@ -338,7 +338,7 @@ public class UserManager extends ObjectManager {
 	 */
 	protected void assertIsUnknownUserAsIllegalArgument(User user) {
 		if (hasUserByTag(user.getNameAsTag())) {
-			throw new IllegalArgumentException(user.getName() + "is already known");
+			throw new IllegalArgumentException(user.getName() + " is already known");
 		}
 	}
 	
@@ -348,7 +348,7 @@ public class UserManager extends ObjectManager {
 	 */
 	protected void assertIsUnknownUserAsIllegalState(User user) {
 		if (hasUserByTag(user.getNameAsTag())) {
-			throw new IllegalStateException(user.getName() + "should not be known");
+			throw new IllegalStateException(user.getName() + " should not be known");
 		}
 	}
 	
