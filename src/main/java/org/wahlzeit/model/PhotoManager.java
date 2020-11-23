@@ -40,12 +40,12 @@ public class PhotoManager extends ObjectManager {
 	/**
 	 * In-memory cache for photos
 	 */
-	protected Map<PhotoId, Photo> photoCache = new HashMap<PhotoId, Photo>();
+	protected Map<PhotoId, Photo> photoCache = new HashMap<>();
 	
 	/**
 	 * 
 	 */
-	protected PhotoTagCollector photoTagCollector = null;
+	protected PhotoTagCollector photoTagCollector;
 
 	/**
 	 * Public singleton access method.
@@ -183,8 +183,7 @@ public class PhotoManager extends ObjectManager {
 		try {
 			PreparedStatement stmt = getReadingStatement("SELECT * FROM photos");
 			readObjects(result, stmt);
-			for (Iterator<Photo> i = result.iterator(); i.hasNext(); ) {
-				Photo photo = i.next();
+			for (Photo photo : result) {
 				if (!doHasPhoto(photo.getId())) {
 					doAddPhoto(photo);
 				} else {
@@ -229,16 +228,16 @@ public class PhotoManager extends ObjectManager {
 	 * the Datastore, it is simply not persisted.
 	 */
 	public Set<Photo> findPhotosByOwner(String ownerName) {
-		Set<Photo> result = new HashSet<Photo>();
+		Set<Photo> result = new HashSet<>();
 		try {
 			PreparedStatement stmt = getReadingStatement("SELECT * FROM photos WHERE owner_name = ?");
 			readObjects(result, stmt, ownerName);
 		} catch (SQLException sex) {
 			SysLog.logThrowable(sex);
 		}
-		
-		for (Iterator<Photo> i = result.iterator(); i.hasNext(); ) {
-			doAddPhoto(i.next());
+
+		for (Photo photo : result) {
+			doAddPhoto(photo);
 		}
 
 		return result;
@@ -280,7 +279,7 @@ public class PhotoManager extends ObjectManager {
 	 * 
 	 */
 	protected java.util.List<PhotoId> getFilteredPhotoIds(PhotoFilter filter) {
-		java.util.List<PhotoId> result = new LinkedList<PhotoId>();
+		java.util.List<PhotoId> result = new LinkedList<>();
 
 		try {
 			java.util.List<String> filterConditions = filter.getFilterConditions();
@@ -344,14 +343,13 @@ public class PhotoManager extends ObjectManager {
 		deleteObject(obj, stmt);
 		
 		stmt = getReadingStatement("INSERT INTO tags VALUES(?, ?)");
-		Set<String> tags = new HashSet<String>();
+		Set<String> tags = new HashSet<>();
 		photoTagCollector.collect(tags, photo);
-		for (Iterator<String> i = tags.iterator(); i.hasNext(); ) {
-			String tag = i.next();
+		for (String tag : tags) {
 			stmt.setString(1, tag);
 			stmt.setInt(2, photo.getId().asInt());
 			SysLog.logQuery(stmt);
-			stmt.executeUpdate();					
+			stmt.executeUpdate();
 		}
 	}
 		
