@@ -1,56 +1,77 @@
 package org.wahlzeit.utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class DoubleUtil {
-
     /**
-     * Checks if two double numbers a and b differ less than epsilon.
-     * If one of the compared numbers is not a finite number (e.g. if it is infinite or not-a-number)
-     * then an ArithmeticException is thrown. (Except if both numbers are infinite, but with different signs, then false is returned)
-     *
-     * @return Returns true if the doubles a and double b differ less than epsilon.
-     * @throws ArithmeticException Is thrown if a or b are not finite numbers.
-     * @methodtype boolean-query
-     * @methodproperties primitive
+     * @return Returns true if a and b are equal when taking account of scale digits to the right of the decimal point.
+     * @throws ArithmeticException If a and/or b are Infinite or NaN
+     * @methodtype comparison
+     * @methodproperties composed
      */
-    public static boolean isEqual(final double a, final double b, final double epsilon) throws ArithmeticException {
-
-        /* === corner cases === */
-
-        if (a == Double.POSITIVE_INFINITY && b == Double.POSITIVE_INFINITY) {
-            throw new ArithmeticException("Can't tell weather 'a' and 'b' differ only by epsilon or are way more different");
-        }
-        if (a == Double.NEGATIVE_INFINITY && b == Double.NEGATIVE_INFINITY) {
-            throw new ArithmeticException("Can't tell weather 'a' and 'b' differ only by epsilon or are way more different");
-        }
-        if (Double.isNaN(a) || Double.isNaN(b)) {
-            throw new ArithmeticException("Can't compare NaN double values!");
-        }
-
-        if (a == b) return true;  // if a and b reference the same object
-
-        // The given epsilon must be a finite (not NaN and not infinite) number.
-        if (!Double.isFinite(epsilon)) throw new IllegalArgumentException("'epsilon' must be a finite number!");
-
-
-        /* === actual comparison of numbers */
-
-        double diff = Math.abs(a - b);
-        return diff < epsilon;
+    public static boolean isEqual(final double a, final double b, final int scale) throws ArithmeticException {
+        return compare(a, b, scale) == 0;
     }
 
     /**
-     * @return Returns 0 if a and b differ less than epsilon. Otherwise -1 is returned if a < b or else +1.
-     * @methodtype query
+     * @return Returns 0 if a and b are equal when taking account of scale digits to the right of the decimal point.
+     * Otherwise -1 is returned if a < b or else +1.
+     * @throws ArithmeticException If a and/or b are Infinite or NaN
+     * @methodtype comparison
      * @methodproperties composed
      */
-    public static int compare(final double a, final double b, final double epsilon) {
-        if (isEqual(a, b, epsilon)) {
-            return 0;
+    public static int compare(final double a, final double b, final int scale) {
+        if (!(Double.isFinite(a) && Double.isFinite(b))) {
+            throw new ArithmeticException("Can't compare infinite or NaN numbers!");
         }
-        if (a < b) {
-            return -1;
-        } else {
-            return +1;
-        }
+        // a and b are finite numbers
+
+        // if a and b are the same reference
+        if (a == b) return 0;
+
+        assertIsValidScale(scale);
+        BigDecimal aRounded = doRoundAsBigDecimal(a, scale);
+        BigDecimal bRounded = doRoundAsBigDecimal(b, scale);
+        return aRounded.compareTo(bRounded);
+    }
+
+    /**
+     * @param value double value to round and return as String
+     * @param scale result is rounded to have scale digits to the right of the decimal point
+     * @throws NumberFormatException If value is Infinite or NaN
+     * @methodtype conversion
+     * @methodproperties composed
+     */
+    public static String roundAsString(double value, int scale) {
+        return roundAsBigDecimal(value, scale).toString();
+    }
+
+    /**
+     * @param value double value to round and return as BigDecimal
+     * @param scale result is rounded to have scale digits to the right of the decimal point
+     * @throws NumberFormatException If value is Infinite or NaN
+     * @methodtype conversion
+     * @methodproperties composed
+     */
+    public static BigDecimal roundAsBigDecimal(double value, int scale) {
+        assertIsValidScale(scale);
+        return doRoundAsBigDecimal(value, scale);
+    }
+
+    /**
+     * @methodtype conversion
+     * @methodproperties primitive
+     */
+    protected static BigDecimal doRoundAsBigDecimal(double value, int scale) {
+        return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * @methodtype assertion
+     * @methodproperties primitive
+     */
+    protected static void assertIsValidScale(int scale) {
+        if (scale < 0) throw new IllegalArgumentException("scale must not be negative");
     }
 }

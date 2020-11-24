@@ -10,27 +10,27 @@ import java.util.Objects;
 public class Location extends DataObject {
     public static final Location DEFAULT_LOCATION = new Location(1.0,2.0,3.0);
 
-    protected Coordinate coordinate = new Coordinate();
+    protected CartesianCoordinate cartesianCoordinate = new CartesianCoordinate();
 
     public Location() {
         incWriteCount();
     }
     public Location(double x, double y, double z){
-        setCoordinate(new Coordinate(x, y, z));
+        setCoordinate(new CartesianCoordinate(x, y, z));
     }
 
     /**
      * @methodtype get
      */
-    public Coordinate getCoordinate() {
-        return coordinate;
+    public CartesianCoordinate getCoordinate() {
+        return cartesianCoordinate;
     }
 
     /**
      * @methodtype set
      */
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
+    public void setCoordinate(CartesianCoordinate cartesianCoordinate) {
+        this.cartesianCoordinate = cartesianCoordinate;
         incWriteCount();
     }
 
@@ -51,7 +51,7 @@ public class Location extends DataObject {
      * @methodproperties primitive
      */
     public boolean isEqual(Location other) {
-        return Objects.equals(coordinate, other.coordinate);
+        return Objects.equals(cartesianCoordinate, other.cartesianCoordinate);
     }
 
     /**
@@ -60,14 +60,14 @@ public class Location extends DataObject {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(coordinate);
+        return Objects.hash(cartesianCoordinate);
     }
 
     //=== Persistence Methods ===
 
     @Override
     public boolean isDirty(){
-        return super.isDirty() || coordinate.isDirty();
+        return super.isDirty() || cartesianCoordinate.isDirty();
     }
 
     @Override
@@ -77,12 +77,12 @@ public class Location extends DataObject {
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
-        coordinate.readFrom(rset);
+        cartesianCoordinate.readFrom(rset);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
-        coordinate.writeOn(rset);
+        cartesianCoordinate.writeOn(rset);
     }
 
     @Override
