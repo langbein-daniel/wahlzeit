@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Location extends DataObject {
     public static final Location DEFAULT_LOCATION = new Location(1.0,2.0,3.0);
 
-    protected CartesianCoordinate cartesianCoordinate = new CartesianCoordinate();
+    protected Coordinate coordinate = new CartesianCoordinate();
 
     public Location() {
         incWriteCount();
@@ -22,15 +22,15 @@ public class Location extends DataObject {
     /**
      * @methodtype get
      */
-    public CartesianCoordinate getCoordinate() {
-        return cartesianCoordinate;
+    public Coordinate getCoordinate() {
+        return coordinate;
     }
 
     /**
      * @methodtype set
      */
-    public void setCoordinate(CartesianCoordinate cartesianCoordinate) {
-        this.cartesianCoordinate = cartesianCoordinate;
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
         incWriteCount();
     }
 
@@ -51,7 +51,7 @@ public class Location extends DataObject {
      * @methodproperties primitive
      */
     public boolean isEqual(Location other) {
-        return Objects.equals(cartesianCoordinate, other.cartesianCoordinate);
+        return Objects.equals(coordinate, other.getCoordinate());
     }
 
     /**
@@ -60,14 +60,14 @@ public class Location extends DataObject {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(cartesianCoordinate);
+        return coordinate.hashCode();
     }
 
     //=== Persistence Methods ===
 
     @Override
     public boolean isDirty(){
-        return super.isDirty() || cartesianCoordinate.isDirty();
+        return super.isDirty() || coordinate.isDirty();
     }
 
     @Override
@@ -77,12 +77,12 @@ public class Location extends DataObject {
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
-        cartesianCoordinate.readFrom(rset);
+        coordinate.readFrom(rset);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
-        cartesianCoordinate.writeOn(rset);
+        coordinate.writeOn(rset);
     }
 
     @Override

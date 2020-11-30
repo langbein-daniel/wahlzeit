@@ -1,9 +1,13 @@
 package org.wahlzeit.model.location;
 
-public interface Coordinate {
-    public CartesianCoordinate asCartesianCoordinate();
-    public double getCartesianDistance(Coordinate other);
-    public SphericalCoordinate asSphericalCoordinate();
-    public double getCentralAngle(Coordinate other);
-    public boolean isEqual(Coordinate other);
+import org.wahlzeit.services.Persistent;
+
+public interface Coordinate extends Persistent {
+    CartesianCoordinate asCartesianCoordinate();
+    SphericalCoordinate asSphericalCoordinate();
+
+    double getCartesianDistance(Coordinate other);
+    double getCentralAngle(Coordinate other);
+
+    boolean isEqual(Coordinate other);
 }

@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * All test cases of the class {@link DoubleUtil}.
@@ -13,7 +12,43 @@ import static org.junit.Assert.assertTrue;
 public class DoubleUtilTest {
 
     @Test
-    public void doublePrecision(){
+    public void doubleRemainder() {
+        /*
+         * We have some x that is not in the desired
+         * range [0, 2*pi]
+         * Using the modulus operator, one can subtract
+         * multiples of 2*pi from x so that the result is in the range
+         */
+        double upperRangeLimit = 2.0 * Math.PI;
+        double factor = 1.75;
+        double x = factor * upperRangeLimit; // x is not in the range
+        double expected = 0.75 * upperRangeLimit;
+
+        double inRange = x % upperRangeLimit;
+        double inRange2 = DoubleUtil.posRemainder(x, upperRangeLimit, 10);
+
+        assertEquals(expected, inRange, 0.000001);
+        assertEquals(expected, inRange2, 0.000001);
+    }
+
+    @Test
+    public void negativeDoubleRemainder(){
+        double upperRangeLimit = 2.0 * Math.PI;
+        double factor = -0.75;
+        double x = factor * upperRangeLimit; // x is not in the range
+        double expected = 0.25 * upperRangeLimit;
+
+        // as x is negative, the "%" will the smallest negative remainder
+        // if we subtract this from upperRangeLimit, we get a value in the range
+        double inRange = upperRangeLimit + (x % upperRangeLimit);
+        double inRange2 = DoubleUtil.posRemainder(x, upperRangeLimit, 10);
+
+        assertEquals(expected, inRange, 0.000001);
+        assertEquals(expected, inRange2, 0.000001);
+    }
+
+    @Test
+    public void doublePrecision() {
         // one double is represented by numBits bit
         int numBits = Double.BYTES * 8;
         // the largest number to represent with numBits bit is the number
@@ -28,7 +63,7 @@ public class DoubleUtilTest {
     }
 
     @Test
-    public void testIsEqual_SlightlyDifferent(){
+    public void testIsEqual_SlightlyDifferent() {
         double aNumber = 1.0;
         double otherNumber = 2.0;
         int tooLargeScale = 0;
@@ -37,7 +72,7 @@ public class DoubleUtilTest {
     }
 
     @Test
-    public void testIsEqual_SlightlyDifferent2(){
+    public void testIsEqual_SlightlyDifferent2() {
         double aNumber = 10.0;
         double otherNumber = 10.1;
         int smallEnoughScale = 0;
@@ -48,7 +83,7 @@ public class DoubleUtilTest {
     }
 
     @Test
-    public void testIsEqual_SlightlyDifferent3(){
+    public void testIsEqual_SlightlyDifferent3() {
         double aNumber = 10.0;
         double otherNumber = 10.01;
         int smallEnoughScale = 1;
@@ -64,7 +99,7 @@ public class DoubleUtilTest {
         double nanB = Double.NaN;
 
         // if one or both of the compared doubles are not a number, they should not be seen as equal!
-        assertFalse(DoubleUtil.isEqual(nanA, nanB, 1));
+        DoubleUtil.isEqual(nanA, nanB, 1);
     }
 
     @Test(expected = ArithmeticException.class)
@@ -73,7 +108,7 @@ public class DoubleUtilTest {
         double aNumber = 13.0;
 
         // if one or both of the compared doubles are not a number, they should not be seen as equal!
-        assertFalse(DoubleUtil.isEqual(aNumber, nanA, 1));
+        DoubleUtil.isEqual(aNumber, nanA, 1);
     }
 
     @Test(expected = ArithmeticException.class)
@@ -82,7 +117,7 @@ public class DoubleUtilTest {
         double aNumber = 13.0;
 
         // if one or both of the compared doubles are not a number, they should not be seen as equal!
-        assertFalse(DoubleUtil.isEqual(nanB, aNumber, 1));
+        DoubleUtil.isEqual(nanB, aNumber, 1);
     }
 
     @Test(expected = ArithmeticException.class)
@@ -102,20 +137,18 @@ public class DoubleUtilTest {
     }
 
     @Test(expected = ArithmeticException.class)
-    public void testIsEqual_DifferentSignInfinity(){
+    public void testIsEqual_DifferentSignInfinity() {
         double posInfA = Double.POSITIVE_INFINITY;
         double negInfC = Double.NEGATIVE_INFINITY;
 
-        assertFalse(DoubleUtil.isEqual(posInfA, negInfC, 1));
-        assertFalse(DoubleUtil.isEqual(negInfC, posInfA, 1));
+        DoubleUtil.isEqual(posInfA, negInfC, 1);
     }
 
     @Test(expected = ArithmeticException.class)
-    public void testIsEqual_DifferentSignInfinity2(){
+    public void testIsEqual_DifferentSignInfinity2() {
         double posInfA = Double.NEGATIVE_INFINITY;
         double negInfC = Double.POSITIVE_INFINITY;
 
-        assertFalse(DoubleUtil.isEqual(posInfA, negInfC, 1));
-        assertFalse(DoubleUtil.isEqual(negInfC, posInfA, 1));
+        DoubleUtil.isEqual(negInfC, posInfA, 1);
     }
 }

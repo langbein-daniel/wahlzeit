@@ -1,6 +1,6 @@
 plugins {
     id 'war'
-    id 'org.gretty' version '3.0.3'  
+    id 'org.gretty' version '3.0.3'
     id 'java'
 }
 
@@ -21,12 +21,12 @@ sourceSets {
 }
 
 dependencies {
-    providedCompile 'javax.servlet:javax.servlet-api:4.0.1' 
-    
-    implementation 'org.postgresql:postgresql:9.3-1104-jdbc41'    
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+
+    implementation 'org.postgresql:postgresql:9.3-1104-jdbc41'
     implementation 'log4j:log4j:1.2.17'
     implementation 'com.sun.mail:javax.mail:1.6.2'
-    
+
     testImplementation 'junit:junit:4.12'
 }
 
@@ -35,14 +35,31 @@ test {
         includeTestsMatching "org.wahlzeit.*"
     }
     testLogging {
-            events "passed", "skipped", "failed"
+        events "passed", "skipped", "failed"
 
-            afterSuite { desc, result ->
-                if (!desc.parent) {
-                    println "Tests run: ${result.testCount}, " +
-                            "Failures: ${result.failedTestCount}, " +
-                            "Skipped: ${result.skippedTestCount}"
-                }
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println "Tests run: ${result.testCount}, " +
+                        "Failures: ${result.failedTestCount}, " +
+                        "Skipped: ${result.skippedTestCount}"
             }
         }
+    }
+}
+
+task testLocation(type: Test) {
+    filter {
+        includeTestsMatching "org.wahlzeit.model.location.*"
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println "Tests run: ${result.testCount}, " +
+                        "Failures: ${result.failedTestCount}, " +
+                        "Skipped: ${result.skippedTestCount}"
+            }
+        }
+    }
 }

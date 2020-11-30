@@ -3,9 +3,14 @@ package org.wahlzeit.model.location;
 import org.wahlzeit.services.DataObject;
 import org.wahlzeit.utils.DoubleUtil;
 
-public abstract class AbstractCoordinate extends DataObject implements Coordinate {
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-    /*
+public abstract class AbstractCoordinate extends DataObject implements Coordinate {
+    /* A static CENTER Coordinate can be found in subclass CartesianCoordinate */
+
+    /**
      * digits to the right of the decimal point that are taken into account
      * when comparing and for hash code generation of double values
      */
@@ -15,16 +20,26 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     public abstract CartesianCoordinate asCartesianCoordinate();
 
     @Override
+    public abstract SphericalCoordinate asSphericalCoordinate();
+
+
+    @Override
     public double getCartesianDistance(Coordinate other) {
+        // To calculate the cartesian distance,
+        // we need both coordinates in cartesian representation.
         return this.asCartesianCoordinate().getCartesianDistance(other);
     }
 
-    @Override
-    public abstract SphericalCoordinate asSphericalCoordinate();
+//    @Override
+//    public double getCentralAngle(Coordinate other) {
+//        return this.asSphericalCoordinate().getCentralAngle(other);
+//    }
 
     @Override
     public double getCentralAngle(Coordinate other) {
-        return this.asSphericalCoordinate().getCentralAngle(other);
+        // To calculate the central angle,
+        // we need both coordinates in cartesian representation.
+        return this.asCartesianCoordinate().getCentralAngle(other);
     }
 
     /**
@@ -57,15 +72,42 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
      */
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        /*
+         * A Coordinate shall be comparable/identifiable by the point in space it represents no matter of the internal representation
+         * (spherical, cartesian, cylindrical, etc.  coordinate system).
+         * Therefore we do first convert all of them to CartesianCoordinates.
+         */
+        return asCartesianCoordinate().toString().hashCode();
     }
 
-    /**
-     * @methodtype conversion
-     * @methodproperties composed
-     */
+    //=== Persistence Methods ===
+
     @Override
-    public String toString() {
-        return asCartesianCoordinate().toString();
+    public String getIdAsString() {
+        return null; // A Coordinate object hast no ID. It is always part of a Photo.
+    }
+
+    @Override
+    public void readFrom(ResultSet rset) throws SQLException {
+        double x = rset.getDouble("coordinate_x");
+        double y = rset.getDouble("coordinate_y");
+        double z = rset.getDouble("coordinate_z");
+
+        readFrom(new CartesianCoordinate(x,y,z));
+    }
+
+    public abstract void readFrom(CartesianCoordinate coordinate);
+
+    @Override
+    public void writeOn(ResultSet rset) throws SQLException {
+        CartesianCoordinate cartesian = this.asCartesianCoordinate();
+        rset.updateDouble("coordinate_x", cartesian.getX());
+        rset.updateDouble("coordinate_y", cartesian.getY());
+        rset.updateDouble("coordinate_z", cartesian.getZ());
+    }
+
+    @Override
+    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
+        // nothing to do; Coordinate object has no ID.
     }
 }

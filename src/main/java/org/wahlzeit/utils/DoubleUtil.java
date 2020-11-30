@@ -5,6 +5,30 @@ import java.math.RoundingMode;
 
 public class DoubleUtil {
     /**
+     * @param x: some n umber
+     * @param y: a divisor greater than zero
+     * @return smallest positive remainder of "floorDiv(x, y)"
+     */
+    public static double posRemainder(double x, double y, final int scale){
+        if(y<0.0){
+            throw new IllegalArgumentException("y must be positive");
+        }
+
+        if (x >= y) {
+            return x % y;
+        } else if (x < 0.0) {
+            double negRemainder = x % y;
+            if(isEqual(negRemainder, 0.0, scale)){
+                return 0.0;
+            }else{
+                return y + negRemainder;
+            }
+        }else{
+            return x;
+        }
+    }
+
+    /**
      * @return Returns true if a and b are equal when taking account of scale digits to the right of the decimal point.
      * @throws ArithmeticException If a and/or b are Infinite or NaN
      * @methodtype comparison

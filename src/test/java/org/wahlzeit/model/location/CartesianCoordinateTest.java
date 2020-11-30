@@ -1,49 +1,98 @@
-package org.wahlzeit.model;
+package org.wahlzeit.model.location;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.wahlzeit.model.location.AbstractCoordinate;
-import org.wahlzeit.model.location.CartesianCoordinate;
+import org.wahlzeit.utils.DoubleUtil;
 
 import java.util.PrimitiveIterator;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 
 import static org.junit.Assert.*;
+import static org.wahlzeit.model.location.AbstractCoordinate.SCALE;
+import static org.wahlzeit.model.location.AbstractCoordinateTest.accuracy;
+import static org.wahlzeit.model.location.AbstractCoordinateTest.orthogonalLocations;
+
 
 /**
  * All test cases of the class {@link CartesianCoordinate}.
  */
 public class CartesianCoordinateTest {
+    public static void assertEqualCartesian(CartesianCoordinate expected, CartesianCoordinate actual){
+        assertEquals(expected, actual);
+        assertTrue(DoubleUtil.isEqual(expected.getX(), actual.getX(), SCALE));
+        assertTrue(DoubleUtil.isEqual(expected.getY(), actual.getY(), SCALE));
+        assertTrue(DoubleUtil.isEqual(expected.getZ(), actual.getZ(), SCALE));
+    }
+
+    public static void assertEqualCartesian(String message, CartesianCoordinate expected, CartesianCoordinate actual){
+        assertEquals(message, expected, actual);
+        assertTrue(message, DoubleUtil.isEqual(expected.getX(), actual.getX(), SCALE));
+        assertTrue(message, DoubleUtil.isEqual(expected.getY(), actual.getY(), SCALE));
+        assertTrue(message, DoubleUtil.isEqual(expected.getZ(), actual.getZ(), SCALE));
+    }
+
     @Test
-    public void testGetCartesianDistance() {
+    public void test_newCartesian(){
+        for(LocationTuple location:AbstractCoordinateTest.locations){
+            CartesianCoordinate expected = location.cartesian;
+
+            CartesianCoordinate actual = new CartesianCoordinate(expected);
+
+            assertEqualCartesian(expected, actual);
+        }
+    }
+
+    @Test
+    public void test_centralAngle(){
+        // a, b and c are all "orthogonal" to each other (central angle of 90°)
+        CartesianCoordinate a = orthogonalLocations[0].cartesian;
+        CartesianCoordinate b = orthogonalLocations[1].cartesian;
+        CartesianCoordinate c = orthogonalLocations[2].cartesian;
+        double halfPi = Math.PI/2.0;
+
+        assertEquals(halfPi, a.getCentralAngle(b), accuracy);
+        assertEquals(halfPi, a.getCentralAngle(c), accuracy);
+        assertEquals(halfPi, b.getCentralAngle(a), accuracy);
+        assertEquals(halfPi, b.getCentralAngle(c), accuracy);
+        assertEquals(halfPi, c.getCentralAngle(a), accuracy);
+        assertEquals(halfPi, c.getCentralAngle(b), accuracy);
+
+    }
+
+    @Test
+    public void test_getCartesianDistance() {
         // minimum expected accuracy
         double epsilon = 0.0000000001;
 
-        // center of coordinate system
-        CartesianCoordinate centerCartesianCoordinate = new CartesianCoordinate(0.0, 0.0, 0.0);
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate otherCartesianCoordinate = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate other1 = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate other2 = new CartesianCoordinate(z, x, y);
+        CartesianCoordinate other3 = new CartesianCoordinate(y, z, x);
+
 
         // manually calculated distance:
         // sqrt(3*3 + 7*7 + 9*9)
         double expectedDistance = 11.78982612255159596846918375135848942610804994310659548714592171;
 
         // Act
-        double actualDistance = centerCartesianCoordinate.getCartesianDistance(otherCartesianCoordinate);
+        double actual1 = CartesianCoordinate.CENTER.getCartesianDistance(other1);
+        double actual2 = CartesianCoordinate.CENTER.getCartesianDistance(other2);
+        double actual3 = CartesianCoordinate.CENTER.getCartesianDistance(other3);
 
         // Assert
-        Assert.assertEquals(expectedDistance, actualDistance, epsilon);
+        assertEquals(expectedDistance, actual1, epsilon);
+        assertEquals(expectedDistance, actual2, epsilon);
+        assertEquals(expectedDistance, actual3, epsilon);
     }
 
     @Test
-    public void testIsEqual_ErrorRelativeToScale() {
+    public void test_isEqual_ErrorRelativeToScale() {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate actual = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
 
         // SCALE number of digits to the right of the decimal point of
         // double values from two coordinates shall be equal for the
@@ -58,17 +107,17 @@ public class CartesianCoordinateTest {
         double zWithError = z + error;
         CartesianCoordinate other = new CartesianCoordinate(xWithError, yWithError, zWithError);
 
-        assertEquals(actual, other);
+        assertEqualCartesian(expected, other);
     }
 
     @Test
-    public void testIsEquals_RandomError() {
+    public void test_isEquals_RandomError() {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate actual = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
 
-        // how many other Coordinates with random errors shall be compared with the actual Coordinate
+        // how many other Coordinates with random errors shall be compared with the expected Coordinate
         int loopCount = 100;
 
         // Theoretically one could take 0.4999 * 10^(-SCALE) as an error that would still be ignored.
@@ -91,17 +140,17 @@ public class CartesianCoordinateTest {
             double zWithError = z +  randomErrorIter.next();
             CartesianCoordinate other = new CartesianCoordinate(xWithError, yWithError, zWithError);
             System.out.println(other.getX() + " | " + other.getY() + " | " + other.getZ());
-            assertEquals(actual, other);
+            assertEqualCartesian(expected, other);
         }
         assertFalse(randomErrorIter.hasNext());
     }
 
     @Test
-    public void testIsEqual_NotEqualCoordinates() {
+    public void test_isEqual_NotEqualCoordinates() {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate actual = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
 
         // no matter of the specified SCALE, this error should be considered as too large!
         double tooLargeError = 0.001;
@@ -109,18 +158,18 @@ public class CartesianCoordinateTest {
         CartesianCoordinate otherY = new CartesianCoordinate(x, y + tooLargeError, z);
         CartesianCoordinate otherZ = new CartesianCoordinate(x, y, z + tooLargeError);
 
-        assertNotEquals(actual, otherX);
-        assertNotEquals(actual, otherY);
-        assertNotEquals(actual, otherZ);
+        assertNotEquals(expected, otherX);
+        assertNotEquals(expected, otherY);
+        assertNotEquals(expected, otherZ);
 
     }
 
     @Test
-    public void testIsEqual_NotEqualCoordinates2() {
+    public void test_isEqual_NotEqualCoordinates2() {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate actual = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
 
         // The factor 1.5 makes the error just a bit larger so that we have some free room
         // for internal calculation errors of isEqual(). Otherwise it might be that the error
@@ -130,8 +179,8 @@ public class CartesianCoordinateTest {
         CartesianCoordinate otherBY = new CartesianCoordinate(x, y + slightlyTooLargeError, z);
         CartesianCoordinate otherBZ = new CartesianCoordinate(x, y, z + slightlyTooLargeError);
 
-        assertNotEquals(actual, otherBX);
-        assertNotEquals(actual, otherBY);
-        assertNotEquals(actual, otherBZ);
+        assertNotEquals(expected, otherBX);
+        assertNotEquals(expected, otherBY);
+        assertNotEquals(expected, otherBZ);
     }
 }
