@@ -8,7 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class AbstractCoordinate extends DataObject implements Coordinate {
-    /* A static CENTER Coordinate can be found in subclass CartesianCoordinate */
+    /*
+     * A static CENTER Coordinate can be found in subclass CartesianCoordinate
+     */
 
     /**
      * digits to the right of the decimal point that are taken into account
@@ -61,9 +63,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public boolean isEqual(Coordinate other) {
         if (other == null) return false;
-
-        double distance = getCartesianDistance(other);
-        return DoubleUtil.isEqual(distance, 0.0, SCALE);
+        return this.toString().equals(other.toString());
     }
 
     /**

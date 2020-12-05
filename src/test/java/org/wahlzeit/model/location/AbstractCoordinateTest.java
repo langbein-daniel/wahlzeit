@@ -3,6 +3,9 @@ package org.wahlzeit.model.location;
 import org.junit.Test;
 
 
+import java.util.*;
+import java.util.stream.DoubleStream;
+
 import static java.lang.Math.PI;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -15,19 +18,19 @@ public class AbstractCoordinateTest {
     // Array of cartesian coordinates and their spherical equivalent.
     // This is used to verify results of converted coordinates
     public static final LocationTuple[] locations = new LocationTuple[]{
-        new LocationTuple(new CartesianCoordinate(0.0, 0.0, 0.0),
-                new SphericalCoordinate(0.0, 0.0, 0.0)),
-                new LocationTuple(new CartesianCoordinate(1.0, 0.0, 0.0),
-                        new SphericalCoordinate(1.0, PI / 2.0, 0.0)),
-                new LocationTuple(new CartesianCoordinate(0.0, 1.0, 0.0),
-                        new SphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
-                new LocationTuple(new CartesianCoordinate(0.0, 0.0, 1.0),
-                        new SphericalCoordinate(1.0, 0.0, 0.0)),
-                // LocationTuple with x=-1,y=0,z=0 excluded a special case
-                new LocationTuple(new CartesianCoordinate(0.0, -1.0, 0.0),
-                        new SphericalCoordinate(1.0, PI / 2.0, -PI / 2.0)),
-                new LocationTuple(new CartesianCoordinate(0.0, 0.0, -1.0),
-                        new SphericalCoordinate(1.0, PI, 0.0)),
+            new LocationTuple(new CartesianCoordinate(0.0, 0.0, 0.0),
+                    new SphericalCoordinate(0.0, 0.0, 0.0)),
+            new LocationTuple(new CartesianCoordinate(1.0, 0.0, 0.0),
+                    new SphericalCoordinate(1.0, PI / 2.0, 0.0)),
+            new LocationTuple(new CartesianCoordinate(0.0, 1.0, 0.0),
+                    new SphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
+            new LocationTuple(new CartesianCoordinate(0.0, 0.0, 1.0),
+                    new SphericalCoordinate(1.0, 0.0, 0.0)),
+            // LocationTuple with x=-1,y=0,z=0 excluded a special case
+            new LocationTuple(new CartesianCoordinate(0.0, -1.0, 0.0),
+                    new SphericalCoordinate(1.0, PI / 2.0, -PI / 2.0)),
+            new LocationTuple(new CartesianCoordinate(0.0, 0.0, -1.0),
+                    new SphericalCoordinate(1.0, PI, 0.0)),
     };
 
     // The three different points in space are all "orthogonal" to each other (central angle of 90°)
@@ -170,8 +173,8 @@ public class AbstractCoordinateTest {
     }
 
     @Test
-    public void test_centralAngle_orthogonal(){
-        double expected = Math.PI/2.0; // 90° -> orthogonal
+    public void test_centralAngle_orthogonal() {
+        double expected = Math.PI / 2.0; // 90° -> orthogonal
 
         test_centralAngle_Helper(orthogonalLocations[0], orthogonalLocations[1], expected);
         test_centralAngle_Helper(orthogonalLocations[0], orthogonalLocations[2], expected);
@@ -181,13 +184,13 @@ public class AbstractCoordinateTest {
         test_centralAngle_Helper(orthogonalLocations[2], orthogonalLocations[1], expected);
     }
 
-    protected void test_centralAngle_Helper(LocationTuple a, LocationTuple b, double expectedAngle){
+    protected void test_centralAngle_Helper(LocationTuple a, LocationTuple b, double expectedAngle) {
         double actual1 = a.cartesian.getCentralAngle(b.spherical);
         double actual2 = a.spherical.getCentralAngle(b.cartesian);
 
-        String message1 = "centralAngle of "+a.cartesian+" and "+b.spherical+" wrong";
+        String message1 = "centralAngle of " + a.cartesian + " and " + b.spherical + " wrong";
         assertEquals(message1, expectedAngle, actual1, accuracy);
-        String message2 = "centralAngle of "+a.spherical+" and "+b.cartesian+" wrong";
+        String message2 = "centralAngle of " + a.spherical + " and " + b.cartesian + " wrong";
         assertEquals(message2, expectedAngle, actual2, accuracy);
     }
 }
