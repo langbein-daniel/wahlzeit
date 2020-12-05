@@ -33,7 +33,7 @@ public class LandscapePhotoFactory extends PhotoFactory {
      * @methodtype factory
      */
     @Override
-    public Photo createPhoto() {
+    public LandscapePhoto createPhoto() {
         return new LandscapePhoto();
     }
 
@@ -41,7 +41,7 @@ public class LandscapePhotoFactory extends PhotoFactory {
      *
      */
     @Override
-    public Photo createPhoto(PhotoId id) {
+    public LandscapePhoto createPhoto(PhotoId id) {
         return new LandscapePhoto(id);
     }
 
@@ -49,7 +49,7 @@ public class LandscapePhotoFactory extends PhotoFactory {
      *
      */
     @Override
-    public Photo createPhoto(ResultSet rs) throws SQLException {
+    public LandscapePhoto createPhoto(ResultSet rs) throws SQLException {
         return new LandscapePhoto(rs);
     }
 }
