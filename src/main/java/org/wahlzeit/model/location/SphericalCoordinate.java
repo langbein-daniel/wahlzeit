@@ -125,43 +125,6 @@ public class SphericalCoordinate extends AbstractCoordinate {
         return this;
     }
 
-//    @Override
-//    public double getCentralAngle(Coordinate other) {
-//        if (this.isEqual(CENTER) || other.isEqual(CENTER)) {
-//            return Double.NaN;
-//        }
-//        SphericalCoordinate otherSpherical = other.asSphericalCoordinate();
-//        double otherTheta = otherSpherical.getTheta();
-//        double otherPhi = otherSpherical.getPhi();
-//        double deltaPhi = Math.abs(phi - otherPhi);
-//
-//        // don't use one simple but mathematically correct formula
-//        // as there might be large inaccuracies with small angles
-//        // from calculus with double values
-//        // https://en.wikipedia.org/wiki/Great-circle_distance#Computational_formulas
-//
-////        { // variant (I): https://en.wikipedia.org/wiki/Great-circle_distance#Formulae
-////            return Math.acos(
-////                    Math.cos(theta)*Math.cos(otherTheta) +
-////                    Math.sin(theta)*Math.sin(otherTheta)*Math.cos(deltaPhi));
-////        }
-//
-//        { // variant (II): https://en.wikipedia.org/wiki/Great-circle_distance#Computational_formulas
-//            double cosDeltaPhi = Math.cos(deltaPhi);
-//            double sinTheta = Math.sin(theta);
-//            double sinOtherTheta = Math.sin(otherTheta);
-//            double cosTheta = Math.cos(theta);
-//            double cosOtherTheta = Math.cos(otherTheta);
-//
-//            double mult1 = sinOtherTheta * Math.sin(deltaPhi);
-//            double mult2 = sinTheta * cosOtherTheta - cosTheta * sinOtherTheta * cosDeltaPhi;
-//
-//            double dividend = Math.sqrt(mult1 * mult1 + mult2 * mult2);
-//            double divisor = cosTheta * cosOtherTheta + sinTheta * sinOtherTheta * cosDeltaPhi;
-//
-//            return Math.atan(dividend / divisor);
-//        }
-//    }
 
     //=== Getter and Setter ===
 
@@ -245,10 +208,10 @@ public class SphericalCoordinate extends AbstractCoordinate {
 
     @Override
     public String toString() {
-        return "SphericalCoordinate{" +
+        return "SphericalCoordinate in degrees{" +
                 "radius=" + radius +
-                ", theta=" + theta +
-                ", phi=" + phi +
+                ", theta=" + theta/PI*180.0 +
+                ", phi=" + phi/PI*180.0 +
                 '}';
     }
 

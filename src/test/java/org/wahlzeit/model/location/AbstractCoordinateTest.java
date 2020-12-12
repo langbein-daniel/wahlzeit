@@ -9,6 +9,7 @@ import java.util.stream.DoubleStream;
 import static java.lang.Math.PI;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.wahlzeit.model.location.CartesianCoordinate.CENTER;
 import static org.wahlzeit.model.location.CartesianCoordinateTest.assertEqualCartesian;
 import static org.wahlzeit.model.location.SphericalCoordinateTest.assertEqualSpherical;
 
@@ -42,6 +43,59 @@ public class AbstractCoordinateTest {
             new LocationTuple(new CartesianCoordinate(0.0, 0.0, 1.0),
                     new SphericalCoordinate(1.0, 0.0, 0.0)),
     };
+
+    public static double alternativeImpl_getCentralAngle(SphericalCoordinate ref, SphericalCoordinate other) {
+        if (ref.isEqual(CENTER) || other.isEqual(CENTER)) {
+            return Double.NaN;
+        }
+        SphericalCoordinate otherSpherical = other.asSphericalCoordinate();
+        double otherTheta = otherSpherical.getTheta();
+        double otherPhi = otherSpherical.getPhi();
+        double deltaPhi = Math.abs(ref.getPhi() - otherPhi);
+
+        // don't use one simple but mathematically correct formula
+        // as there might be large inaccuracies with small angles
+        // from calculus with double values
+        // https://en.wikipedia.org/wiki/Great-circle_distance#Computational_formulas
+
+//        { // variant (I): https://en.wikipedia.org/wiki/Great-circle_distance#Formulae
+//            return Math.acos(
+//                    Math.cos(theta)*Math.cos(otherTheta) +
+//                    Math.sin(theta)*Math.sin(otherTheta)*Math.cos(deltaPhi));
+//        }
+
+        { // variant (II): https://en.wikipedia.org/wiki/Great-circle_distance#Computational_formulas
+            double cosDeltaPhi = Math.cos(deltaPhi);
+            double sinTheta = Math.sin(ref.getTheta());
+            double sinOtherTheta = Math.sin(otherTheta);
+            double cosTheta = Math.cos(ref.getTheta());
+            double cosOtherTheta = Math.cos(otherTheta);
+
+            double mult1 = sinOtherTheta * Math.sin(deltaPhi);
+            double mult2 = sinTheta * cosOtherTheta - cosTheta * sinOtherTheta * cosDeltaPhi;
+
+            double dividend = Math.sqrt(mult1 * mult1 + mult2 * mult2);
+            double divisor = cosTheta * cosOtherTheta + sinTheta * sinOtherTheta * cosDeltaPhi;
+
+            return Math.atan(dividend / divisor);
+        }
+    }
+
+    @Test
+    public void test_alternativeImplOfCentralAngle() {
+        // a, b and c are all "orthogonal" to each other (central angle of 90°)
+        SphericalCoordinate a = orthogonalLocations[0].spherical;
+        SphericalCoordinate b = orthogonalLocations[1].spherical;
+        SphericalCoordinate c = orthogonalLocations[2].spherical;
+        double halfPi = PI / 2.0;
+
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(a, b), accuracy);
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(a, c), accuracy);
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(b, a), accuracy);
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(b, c), accuracy);
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(c, a), accuracy);
+        assertEquals(halfPi, alternativeImpl_getCentralAngle(c, b), accuracy);
+    }
 
     @Test
     public void test_atan2VsAtan() {
@@ -192,5 +246,48 @@ public class AbstractCoordinateTest {
         assertEquals(message1, expectedAngle, actual1, accuracy);
         String message2 = "centralAngle of " + a.spherical + " and " + b.cartesian + " wrong";
         assertEquals(message2, expectedAngle, actual2, accuracy);
+    }
+
+    @Test
+    public void test_centralAngle_otherImplementation() {
+        /*
+         * Take multiple random coordinate tuples and calculate their central angle twice
+         * with two different algorithms.
+         *
+         * The Coordinate a shall point somewhere near positive y-axis direction and
+         * the Coordinate b shall point somewhere between positive x-axis and positive y-axis direction
+         * in such a way that the central angle between a and b is somewhere around 90 degrees.
+         *
+         * Angles around zero or PI (180 degrees) should be avoided as rounding errors might cause the two
+         * different algorithms to come up with different signed or completely off results.
+         */
+
+        int loopCount = 1000;
+
+        Random r = new Random();
+        PrimitiveIterator.OfDouble randomRadius = r.doubles(2 * loopCount, 1.0, 10000.0)
+                .iterator();
+        PrimitiveIterator.OfDouble randomSmallTheta = r.doubles(loopCount, 0.0, 0.1 * PI)
+                .iterator();
+        PrimitiveIterator.OfDouble randomLargeTheta = r.doubles(loopCount, 0.4 * PI, 0.5 * PI)
+                .iterator();
+        PrimitiveIterator.OfDouble randomPhi = r.doubles(2 * loopCount, 0.0, 0.5 * PI)
+                .iterator();
+
+
+        for (int i = 0; i < loopCount; i++) {
+            SphericalCoordinate a = new SphericalCoordinate(
+                    randomRadius.next(), randomSmallTheta.next(), randomPhi.next());
+            SphericalCoordinate b = new SphericalCoordinate(
+                    randomRadius.next(), randomLargeTheta.next(), randomPhi.next());
+
+            System.out.println("Inspecting angle between\n\t" + a.toString()
+                    + "\n\t" + b.toString());
+
+            double angle = a.getCentralAngle(b);
+            double angleOtherImpl = alternativeImpl_getCentralAngle(a, b);
+
+            assertEquals(angle, angleOtherImpl, accuracy);
+        }
     }
 }
