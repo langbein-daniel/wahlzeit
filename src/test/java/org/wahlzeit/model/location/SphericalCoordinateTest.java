@@ -30,6 +30,18 @@ public class SphericalCoordinateTest {
         double radius = 1.0;
         double theta = 1.1;
         double phi = 1.2;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+
+        assertEquals(radius, spherical.getRadius(), accuracy);
+        assertEquals(theta, spherical.getTheta(), accuracy);
+        assertEquals(phi, spherical.getPhi(), accuracy);
+    }
+
+    @Test
+    public void test_newSpherical1() {
+        double radius = 1.0;
+        double theta = 1.1;
+        double phi = 1.2;
         SphericalCoordinate expected = new SphericalCoordinate(radius, theta, phi);
 
         SphericalCoordinate actual = new SphericalCoordinate(expected);

@@ -4,26 +4,26 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class DoubleUtil {
+    public static final double TWO_PI = Math.PI * 2.0;
+
     /**
      * @param x: some n umber
      * @param y: a divisor greater than zero
      * @return smallest positive remainder of "floorDiv(x, y)"
      */
-    public static double posRemainder(double x, double y, final int scale){
-        if(y<0.0){
-            throw new IllegalArgumentException("y must be positive");
-        }
+    public static double posRemainder(double x, double y, final int scale) {
+        assertArgumentIsPositiveFinite(y);
 
         if (x >= y) {
             return x % y;
         } else if (x < 0.0) {
             double negRemainder = x % y;
-            if(isEqual(negRemainder, 0.0, scale)){
+            if (isEqual(negRemainder, 0.0, scale)) {
                 return 0.0;
-            }else{
+            } else {
                 return y + negRemainder;
             }
-        }else{
+        } else {
             return x;
         }
     }
@@ -54,7 +54,7 @@ public class DoubleUtil {
         // if a and b are the same reference
         if (a == b) return 0;
 
-        assertIsValidScale(scale);
+        assertArgumentIsPositiveFinite(scale);
         BigDecimal aRounded = doRoundAsBigDecimal(a, scale);
         BigDecimal bRounded = doRoundAsBigDecimal(b, scale);
         return aRounded.compareTo(bRounded);
@@ -79,7 +79,7 @@ public class DoubleUtil {
      * @methodproperties composed
      */
     public static BigDecimal roundAsBigDecimal(double value, int scale) {
-        assertIsValidScale(scale);
+        assertArgumentIsPositiveFinite(scale);
         return doRoundAsBigDecimal(value, scale);
     }
 
@@ -91,11 +91,22 @@ public class DoubleUtil {
         return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP);
     }
 
+
+    //====== Assertions ======
+
     /**
      * @methodtype assertion
-     * @methodproperties primitive
+     * @methodproperties composed
+     * <p>
+     * Can be used to assert that some double argument is not negative, infinite or NaN
      */
-    protected static void assertIsValidScale(int scale) {
-        if (scale < 0) throw new IllegalArgumentException("scale must not be negative");
+    public static void assertArgumentIsPositiveFinite(double d) throws IllegalArgumentException {
+        if (!isPositiveFinite(d)) {
+            throw new IllegalArgumentException("negative double value");
+        }
+    }
+
+    public static boolean isPositiveFinite(double d) throws IllegalStateException {
+        return Double.isFinite(d) && d >= 0.0;
     }
 }

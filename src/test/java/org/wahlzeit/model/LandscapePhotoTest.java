@@ -50,6 +50,6 @@ public class LandscapePhotoTest {
         Photo photo = PhotoFactory.getInstance().createPhoto();
         Location location = photo.getLocation();
 
-        assertEquals(Location.DEFAULT_LOCATION, location);
+        assertEquals(Location.DEFAULT_COORDINATE, location.getCoordinate());
     }
 }

@@ -2,11 +2,8 @@ package org.wahlzeit.model.location;
 
 import org.wahlzeit.utils.DoubleUtil;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import static org.wahlzeit.model.location.CartesianCoordinate.CENTER;
+import static org.wahlzeit.utils.DoubleUtil.TWO_PI;
 
 /**
  * Spherical Coordinate in mathematical context
@@ -17,8 +14,6 @@ import static org.wahlzeit.model.location.CartesianCoordinate.CENTER;
  * Unit (of phi and theta): radians (rad)
  */
 public class SphericalCoordinate extends AbstractCoordinate {
-    public static final double TWO_PI = Math.PI * 2.0;
-
     /**
      * radial distance from center in meters; radius >= 0
      */
@@ -49,14 +44,16 @@ public class SphericalCoordinate extends AbstractCoordinate {
      */
     protected double phi;
 
-    public SphericalCoordinate() {
-        incWriteCount();
-    }
-
     public SphericalCoordinate(double radius, double theta, double phi) {
-        setRadius(radius);
-        setTheta(theta);
-        setPhi(phi);
+        assertArgumentIsValidRadius(radius);
+        assertArgumentIsValidTheta(theta);
+        assertArgumentIsValidPhi(phi);
+
+        doSetRadius(radius);
+        doSetTheta(theta);
+        doSetPhi(phi);
+
+        assertClassInvariants();
     }
 
     public SphericalCoordinate(SphericalCoordinate c) {
@@ -64,32 +61,44 @@ public class SphericalCoordinate extends AbstractCoordinate {
     }
 
     public SphericalCoordinate(Coordinate coordinate) {
-        CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
+        assertClassInvariants();
 
-        if (cartesian.equals(CENTER)) {
-            setPhi(0.0);
-            setTheta(0.0);
-            setRadius(0.0);
-        } else {
-            double x = cartesian.getX();
-            double y = cartesian.getY();
-            double z = cartesian.getZ();
+        double radius, theta, phi;
+        {
+            CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
 
+            if (cartesian.equals(CENTER)) {
+                radius = 0.0;
+                theta = 0.0;
+                phi = 0.0;
+            } else {
+                double x = cartesian.getX();
+                double y = cartesian.getY();
+                double z = cartesian.getZ();
 
+                /* distance from center = sqrt(x^2 + y^2 + z^2) */
+                radius = cartesian.getCartesianDistance(CENTER);
 
-            /* distance from center = sqrt(x^2 + y^2 + z^2) */
-            double radius = cartesian.getCartesianDistance(CENTER);
-            setRadius(radius);
+                /* arctan( sqrt(x^2 + y^2) / z  ) = arccos( z / radius ) */
+                // setTheta(Math.atan(Math.hypot(x, y) / z));
+                theta = Math.acos(z / radius);
 
-            /* arctan( sqrt(x^2 + y^2) / z  ) = arccos( z / radius ) */
-            // setTheta(Math.atan(Math.hypot(x, y) / z));
-            setTheta(Math.acos(z / radius));
-
-            /* arctan(y, x) may produce results with wrong sign ! */
-            //setPhi(Math.atan(y / x));
-            /* atan2(y, x) */
-            setPhi(Math.atan2(y, x));
+                /* arctan(y, x) may produce results with wrong sign ! */
+                //phi = Math.atan(y / x);
+                /* atan2(y, x) */
+                phi = Math.atan2(y, x);
+            }
         }
+
+        assertResultIsValidRadius(radius);
+        assertResultIsValidTheta(theta);
+        assertResultIsValidPhi(phi);
+
+        doSetRadius(radius);
+        doSetTheta(theta);
+        doSetPhi(phi);
+
+        assertClassInvariants();
     }
 
     /**
@@ -97,16 +106,20 @@ public class SphericalCoordinate extends AbstractCoordinate {
      * @methodproperties primitive
      */
     @Override
-    public CartesianCoordinate asCartesianCoordinate() {
+    public CartesianCoordinate doAsCartesianCoordinate() {
         return new CartesianCoordinate(this);
     }
 
+    public SphericalCoordinate asSphericalCoordinate() {
+        return this;
+    }
+
     /**
      * @methodtype conversion
      * @methodproperties primitive
      */
     @Override
-    public SphericalCoordinate asSphericalCoordinate() {
+    protected SphericalCoordinate doAsSphericalCoordinate() {
         return this;
     }
 
@@ -161,9 +174,15 @@ public class SphericalCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setRadius(double radius) {
-        if (radius < 0.0) {
-            throw new IllegalArgumentException("radius must be larger or equal to zero");
-        }
+        assertClassInvariants();
+        assertArgumentIsValidRadius(radius);
+
+        doSetRadius(radius);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetRadius(double radius) {
         this.radius = radius;
         incWriteCount();
     }
@@ -179,9 +198,15 @@ public class SphericalCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setTheta(double theta) {
-        if (theta < 0.0 || theta > Math.PI) {
-            throw new IllegalArgumentException("theta must be in the range [0, pi]");
-        }
+        assertClassInvariants();
+        assertArgumentIsValidTheta(theta);
+
+        doSetTheta(theta);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetTheta(double theta) {
         this.theta = theta;
         incWriteCount();
     }
@@ -197,11 +222,24 @@ public class SphericalCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setPhi(double phi) {
+        assertClassInvariants();
+        assertArgumentIsValidPhi(phi);
+
+        doSetPhi(phi);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetPhi(double phi) {
         // phi shall be in the range [0, 2*pi)
         this.phi = DoubleUtil.posRemainder(phi, TWO_PI, SCALE);
         incWriteCount();
     }
 
+    @Override
+    public Object clone() {
+        return new SphericalCoordinate(getRadius(), getTheta(), getPhi());
+    }
 
     @Override
     public String toString() {
@@ -215,11 +253,89 @@ public class SphericalCoordinate extends AbstractCoordinate {
     //=== Persistence Methods ===
 
     @Override
-    public void readFrom(CartesianCoordinate coordinate) {
+    public void doReadFrom(CartesianCoordinate coordinate) {
         SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
 
         phi = spherical.getPhi();
         theta = spherical.getTheta();
         radius = spherical.getRadius();
+    }
+
+    //=== Assertions ===
+
+    @Override
+    protected void assertClassInvariants() {
+        assertStateIsValidRadius(getRadius());
+        assertStateIsValidTheta(getTheta());
+        assertStateIsValidPhi(getPhi());
+    }
+
+
+    protected void assertArgumentIsValidRadius(double radius) {
+        if (!isValidRadius(radius)) {
+            throw new IllegalArgumentException("radius must be positive finite");
+        }
+    }
+
+    protected void assertResultIsValidRadius(double radius) {
+        if (!isValidRadius(radius)) {
+            throw new ArithmeticException("calculated radius is not positive finite");
+        }
+    }
+
+    protected void assertStateIsValidRadius(double radius) {
+        if (!isValidRadius(radius)) {
+            throw new IllegalStateException("radius is not positive finite");
+        }
+    }
+
+    protected boolean isValidRadius(double radius) {
+        return DoubleUtil.isPositiveFinite(radius);
+    }
+
+
+    protected void assertArgumentIsValidTheta(double theta) {
+        if (!isValidTheta(theta)) {
+            throw new IllegalArgumentException("theta must be in range [0, pi]");
+        }
+    }
+
+    protected void assertResultIsValidTheta(double theta) {
+        if (!isValidTheta(theta)) {
+            throw new ArithmeticException("calculated theta is not in range [0, pi]");
+        }
+    }
+
+    protected void assertStateIsValidTheta(double theta) {
+        if (!isValidTheta(theta)) {
+            throw new IllegalStateException("theta not in range [0, pi]");
+        }
+    }
+
+    protected boolean isValidTheta(double theta) {
+        return Double.isFinite(theta) && theta <= Math.PI;
+    }
+
+
+    protected void assertArgumentIsValidPhi(double phi) {
+        if (!isValidPhi(phi)) {
+            throw new IllegalArgumentException("phi must be finite");
+        }
+    }
+
+    protected void assertResultIsValidPhi(double phi) {
+        if (!isValidPhi(phi)) {
+            throw new ArithmeticException("calculated phi is not finite");
+        }
+    }
+
+    protected void assertStateIsValidPhi(double phi) {
+        if (!isValidPhi(phi)) {
+            throw new IllegalStateException("phi is not finite");
+        }
+    }
+
+    protected boolean isValidPhi(double phi) {
+        return Double.isFinite(phi);
     }
 }

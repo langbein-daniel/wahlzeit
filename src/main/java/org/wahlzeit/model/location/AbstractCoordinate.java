@@ -1,6 +1,7 @@
 package org.wahlzeit.model.location;
 
 import org.wahlzeit.services.DataObject;
+import org.wahlzeit.utils.DoubleUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,29 +19,67 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     public static final int SCALE = 12;
 
     @Override
-    public abstract CartesianCoordinate asCartesianCoordinate();
+    public CartesianCoordinate asCartesianCoordinate() throws ConversionException {
+        assertClassInvariants();
+
+        CartesianCoordinate coordinate = doAsCartesianCoordinate();
+
+        assertResultIsEqual(coordinate);
+        assertClassInvariants();
+        return coordinate;
+    }
+
+    protected abstract CartesianCoordinate doAsCartesianCoordinate();
 
     @Override
-    public abstract SphericalCoordinate asSphericalCoordinate();
+    public SphericalCoordinate asSphericalCoordinate() throws ConversionException {
+        assertClassInvariants();
 
+        SphericalCoordinate coordinate = doAsSphericalCoordinate();
+
+        assertResultIsEqual(coordinate);
+        assertClassInvariants();
+        return coordinate;
+    }
+
+    protected abstract SphericalCoordinate doAsSphericalCoordinate();
 
     @Override
     public double getCartesianDistance(Coordinate other) {
-        // To calculate the cartesian distance,
-        // we need both coordinates in cartesian representation.
-        return this.asCartesianCoordinate().getCartesianDistance(other);
+        assertClassInvariants();
+        AbstractCoordinate before = (AbstractCoordinate) this.clone();
+
+        double distance = doGetCartesianDistance(other);
+
+        assertResultIsEqual(before);
+        assertResultIsValidDistance(distance);
+        assertClassInvariants();
+        return distance;
     }
 
-//    @Override
-//    public double getCentralAngle(Coordinate other) {
-//        return this.asSphericalCoordinate().getCentralAngle(other);
-//    }
+    protected double doGetCartesianDistance(Coordinate other) {
+        // To calculate the cartesian distance,
+        // we need both coordinates in cartesian representation.
+        return this.doAsCartesianCoordinate().getCartesianDistance(other);
+    }
 
     @Override
     public double getCentralAngle(Coordinate other) {
+        assertClassInvariants();
+        AbstractCoordinate before = (AbstractCoordinate) this.clone();
+
+        double angle = doGetCentralAngle(other);
+
+        assertResultIsEqual(before);
+        assertResultIsValidAngle(angle);
+        assertClassInvariants();
+        return angle;
+    }
+
+    protected double doGetCentralAngle(Coordinate other) {
         // To calculate the central angle,
         // we need both coordinates in cartesian representation.
-        return this.asCartesianCoordinate().getCentralAngle(other);
+        return this.doAsCartesianCoordinate().getCentralAngle(other);
     }
 
     /**
@@ -50,25 +89,34 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if(!(obj instanceof Coordinate)) return false;
+        if (!(obj instanceof Coordinate)) return false;
         Coordinate coordinate = (Coordinate) obj;
+
         return isEqual(coordinate);
     }
 
     /**
      * @methodtype comparison
      * @methodproperties composed
-     *
+     * <p>
      * A Coordinate shall be comparable/identifiable by the point in space it represents no matter of the internal
      * representation (spherical, cartesian, cylindrical, etc.  coordinate system).
      * Therefore we do first convert all of them to CartesianCoordinates and then compare two
      * CartesianCoordinates for equality.
      */
     @Override
-    public boolean isEqual(Coordinate other) {
-        if (other == null) return false;
+    public boolean isEqual(Coordinate other) throws IllegalArgumentException {
+        assertClassInvariants();
+        assertArgumentNotNull(other);
 
-        String thisCartesianString = asCartesianCoordinate().toString();
+        boolean result = doIsEqual(other);
+
+        assertClassInvariants();
+        return result;
+    }
+
+    protected boolean doIsEqual(Coordinate other) {
+        String thisCartesianString = doAsCartesianCoordinate().toString();
         String otherCartesianString = other.asCartesianCoordinate().toString();
         return thisCartesianString.equals(otherCartesianString);
     }
@@ -76,7 +124,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     /**
      * @methodtype conversion
      * @methodproperties composed
-     *
+     * <p>
      * A Coordinate shall be comparable/identifiable by the point in space it represents no matter of the internal
      * representation (spherical, cartesian, cylindrical, etc.  coordinate system).
      * Therefore we do first convert all of them to CartesianCoordinates and then generate a hash.
@@ -85,6 +133,8 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     public int hashCode() {
         return asCartesianCoordinate().toString().hashCode();
     }
+
+    public abstract Object clone();
 
     /**
      * Default implementation (for subclasses other than CartesianCoordinate)
@@ -105,17 +155,30 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
+        assertClassInvariants();
+
         double x = rset.getDouble("coordinate_x");
         double y = rset.getDouble("coordinate_y");
         double z = rset.getDouble("coordinate_z");
 
-        readFrom(new CartesianCoordinate(x,y,z));
+        doReadFrom(new CartesianCoordinate(x, y, z));
+        assertClassInvariants();
     }
 
-    public abstract void readFrom(CartesianCoordinate coordinate);
+    protected abstract void doReadFrom(CartesianCoordinate coordinate);
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
+        assertClassInvariants();
+        AbstractCoordinate before = (AbstractCoordinate) this.clone();
+
+        doWriteOn(rset);
+
+        assertResultIsEqual(before);
+        assertClassInvariants();
+    }
+
+    protected void doWriteOn(ResultSet rset) throws SQLException {
         CartesianCoordinate cartesian = this.asCartesianCoordinate();
         rset.updateDouble("coordinate_x", cartesian.getX());
         rset.updateDouble("coordinate_y", cartesian.getY());
@@ -123,7 +186,42 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     }
 
     @Override
-    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
+    public void writeId(PreparedStatement stmt, int pos) {
         // nothing to do; Coordinate object has no ID.
+    }
+
+    //=== Assertions ===
+
+    protected abstract void assertClassInvariants();
+
+    protected void assertArgumentNotNull(Coordinate c) {
+        if (c == null) {
+            throw new IllegalArgumentException("Coordinate must not be null");
+        }
+    }
+
+    protected void assertResultIsEqual(Coordinate other) {
+        if (!this.isEqual(other)) {
+            throw new ConversionException("Converted Coordinate is not equal to originating Coordinate");
+        }
+    }
+
+    protected void assertResultIsValidAngle(double angle) {
+        if (!isValidAngle(angle)) {
+            throw new ArithmeticException("angle must be in the range [0, 2pi)");
+        }
+    }
+
+    /**
+     * Angle in radians shall be in the range [0, 2pi)
+     */
+    protected boolean isValidAngle(double angle) {
+        return Double.isFinite(angle) && angle < DoubleUtil.TWO_PI;
+    }
+
+    protected void assertResultIsValidDistance(double distance) {
+        if (!DoubleUtil.isPositiveFinite(distance)) {
+            throw new ArithmeticException("calculated distance is not positive finite");
+        }
     }
 }

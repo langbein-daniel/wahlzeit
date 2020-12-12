@@ -89,7 +89,7 @@ public class Photo extends DataObject {
      *
      */
     protected Tags tags = Tags.EMPTY_TAGS;
-    protected Location location = Location.DEFAULT_LOCATION;
+    protected Location location = new Location();
 
     /**
      *

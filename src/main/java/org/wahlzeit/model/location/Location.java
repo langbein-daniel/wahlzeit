@@ -8,15 +8,17 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 public class Location extends DataObject {
-    public static final Location DEFAULT_LOCATION = new Location(1.0,2.0,3.0);
+    public static final Coordinate DEFAULT_COORDINATE = new CartesianCoordinate(1.0,2.0,3.0);
 
-    protected Coordinate coordinate = new CartesianCoordinate();
+    protected final Coordinate coordinate;
 
     public Location() {
+        coordinate = (Coordinate) DEFAULT_COORDINATE.clone();
         incWriteCount();
     }
     public Location(double x, double y, double z){
-        setCoordinate(new CartesianCoordinate(x, y, z));
+        coordinate = new CartesianCoordinate(x, y, z);
+        incWriteCount();
     }
 
     /**
@@ -24,14 +26,6 @@ public class Location extends DataObject {
      */
     public Coordinate getCoordinate() {
         return coordinate;
-    }
-
-    /**
-     * @methodtype set
-     */
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
-        incWriteCount();
     }
 
     /**
@@ -86,7 +80,7 @@ public class Location extends DataObject {
     }
 
     @Override
-    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
+    public void writeId(PreparedStatement stmt, int pos) {
         // nothing to do; Location object has no ID.
     }
 }

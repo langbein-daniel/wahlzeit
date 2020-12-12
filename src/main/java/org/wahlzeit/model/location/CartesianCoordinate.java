@@ -2,10 +2,6 @@ package org.wahlzeit.model.location;
 
 import org.wahlzeit.utils.DoubleUtil;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
  * Cartesian Coordinate
  * <p>
@@ -32,39 +28,58 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     protected double z = 0.0;
 
-    public CartesianCoordinate() {
-        incWriteCount();
-    }
-
     public CartesianCoordinate(double x, double y, double z) {
-        setX(x);
-        setY(y);
-        setZ(z);
+        assertClassInvariants();
+
+        assertArgumentIsValidXYZ(x);
+        assertArgumentIsValidXYZ(y);
+        assertArgumentIsValidXYZ(z);
+
+        doSetX(x);
+        doSetY(y);
+        doSetZ(z);
+
+        assertClassInvariants();
     }
 
-    public CartesianCoordinate(CartesianCoordinate c){
+    public CartesianCoordinate(CartesianCoordinate c) {
         this(c.getX(), c.getY(), c.getZ());
     }
 
-    public CartesianCoordinate(Coordinate coordinate) {
-        SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
-        double radius = spherical.getRadius();
+    public CartesianCoordinate(Coordinate coordinate) throws IllegalArgumentException {
+        assertClassInvariants();
+        assertArgumentNotNull(coordinate);
 
-        if (DoubleUtil.isEqual(radius, 0.0, SCALE)) {
-            setX(0.0);
-            setY(0.0);
-            setZ(0.0);
-        } else {
-            double phi = spherical.getPhi();
-            double theta = spherical.getTheta();
-            double sinTheta = Math.sin(theta);
+        double x, y, z;
+        {
+            SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
+            double radius = spherical.getRadius();
 
-            setX(radius * sinTheta * Math.cos(phi));
-            setY(radius * sinTheta * Math.sin(phi));
-            setZ(radius * Math.cos(theta));
+            if (DoubleUtil.isEqual(radius, 0.0, SCALE)) {
+                x = 0.0;
+                y = 0.0;
+                z = 0.0;
+            } else {
+                double phi = spherical.getPhi();
+                double theta = spherical.getTheta();
+                double sinTheta = Math.sin(theta);
+
+                x = radius * sinTheta * Math.cos(phi);
+                y = radius * sinTheta * Math.sin(phi);
+                z = radius * Math.cos(theta);
+            }
         }
-    }
 
+        assertResultIsValidXYZ(x);
+        assertResultIsValidXYZ(y);
+        assertResultIsValidXYZ(z);
+
+        doSetX(x);
+        doSetY(y);
+        doSetZ(z);
+
+        assertClassInvariants();
+    }
 
     /**
      * @methodtype conversion
@@ -75,67 +90,74 @@ public class CartesianCoordinate extends AbstractCoordinate {
         return this;
     }
 
+    public CartesianCoordinate doAsCartesianCoordinate() {
+        return this;
+    }
+
     /**
      * @methodtype conversion
      * @methodproperties primitive
      */
     @Override
-    public SphericalCoordinate asSphericalCoordinate() {
+    protected SphericalCoordinate doAsSphericalCoordinate() {
         return new SphericalCoordinate(this);
     }
 
-
     /**
-     * @methodtype get
-     * @methodproperties composed
-     */
-    public double getCartesianDistance(Coordinate other) {
-        CartesianCoordinate otherCartesian = other.asCartesianCoordinate();
-        return getCartesianDistance(otherCartesian);
-    }
-
-
-    /**
-     * @return Central angle between this and the given coordinate.
-     *   If one Coordinate has zero length (as vector), then NaN is returned.
      * @methodtype get
      * @methodproperties composed
      */
     @Override
-    public double getCentralAngle(Coordinate other) {
-        if(this.isEqual(CENTER)) {
-            return Double.NaN;
-        }
+    protected double doGetCartesianDistance(Coordinate other) {
         CartesianCoordinate otherCartesian = other.asCartesianCoordinate();
-        if(otherCartesian.isEqual(CENTER)) {
-            return Double.NaN;
-        }
-
-        double ox = otherCartesian.getX(); /* other.x */
-        double oy = otherCartesian.getY(); /* other.x */
-        double oz = otherCartesian.getZ(); /* other.x */
-
-        // < (this as vector) , (other as vector) >
-        double scalarProd = x*ox + y*oy + z*oz;
-        // || (this as vector) ||
-        double thisDist = getCartesianDistance(CENTER);
-        // || (other as vector) ||
-        double otherDist = otherCartesian.getCartesianDistance(CENTER);
-
-        return Math.acos(scalarProd / (thisDist * otherDist));
+        return doGetCartesianDistance(otherCartesian);
     }
 
     /**
      * @methodtype get
      * @methodproperties primitive
      */
-    public double getCartesianDistance(CartesianCoordinate other) {
+    protected double doGetCartesianDistance(CartesianCoordinate other) {
         double xDelta = Math.abs(other.x - x);
         double yDelta = Math.abs(other.y - y);
         double zDelta = Math.abs(other.z - z);
 
         double xyDistance = Math.hypot(xDelta, yDelta);
         return Math.hypot(xyDistance, zDelta); // xyzDistance
+    }
+
+    /**
+     * @return Central angle between this and the given coordinate.
+     * If one Coordinate has zero length (as vector), then NaN is returned.
+     * @methodtype get
+     * @methodproperties composed
+     */
+    @Override
+    protected double doGetCentralAngle(Coordinate other) {
+        CartesianCoordinate otherCartesian = other.asCartesianCoordinate();
+        return doGetCentralAngle(otherCartesian);
+    }
+
+    protected double doGetCentralAngle(CartesianCoordinate other) {
+        if (this.isEqual(CENTER)) {
+            return Double.NaN;
+        }
+        if (other.isEqual(CENTER)) {
+            return Double.NaN;
+        }
+
+        double ox = other.getX(); /* other.x */
+        double oy = other.getY(); /* other.x */
+        double oz = other.getZ(); /* other.x */
+
+        // < (this as vector) , (other as vector) >
+        double scalarProd = x * ox + y * oy + z * oz;
+        // || (this as vector) ||
+        double thisDist = getCartesianDistance(CENTER);
+        // || (other as vector) ||
+        double otherDist = other.getCartesianDistance(CENTER);
+
+        return Math.acos(scalarProd / (thisDist * otherDist));
     }
 
     //=== Getter and Setter ===
@@ -151,6 +173,15 @@ public class CartesianCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setX(double x) {
+        assertClassInvariants();
+        assertArgumentIsValidXYZ(x);
+
+        doSetX(x);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetX(double x) {
         this.x = x;
         incWriteCount();
     }
@@ -166,6 +197,15 @@ public class CartesianCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setY(double y) {
+        assertClassInvariants();
+        assertArgumentIsValidXYZ(y);
+
+        doSetY(y);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetY(double y) {
         this.y = y;
         incWriteCount();
     }
@@ -181,8 +221,21 @@ public class CartesianCoordinate extends AbstractCoordinate {
      * @methodtype set
      */
     public void setZ(double z) {
+        assertClassInvariants();
+        assertArgumentIsValidXYZ(z);
+
+        doSetZ(z);
+
+        assertClassInvariants();
+    }
+
+    protected void doSetZ(double z) {
         this.z = z;
         incWriteCount();
+    }
+
+    public Object clone() {
+        return new CartesianCoordinate(getX(), getY(), getZ());
     }
 
     /**
@@ -201,9 +254,44 @@ public class CartesianCoordinate extends AbstractCoordinate {
     //=== Persistence Methods ===
 
     @Override
-    public void readFrom(CartesianCoordinate coordinate) {
+    public void doReadFrom(CartesianCoordinate coordinate) {
         this.x = coordinate.getX();
         this.y = coordinate.getY();
         this.z = coordinate.getZ();
+    }
+
+    //=== Assertions ===
+
+    @Override
+    protected void assertClassInvariants() {
+        assertStateIsValidXYZ(getX());
+        assertStateIsValidXYZ(getY());
+        assertStateIsValidXYZ(getZ());
+    }
+
+
+    protected void assertArgumentIsValidXYZ(double xyz) {
+        if (!isValidXYZ(xyz)) {
+            throw new IllegalArgumentException("x, y and z must be finite");
+        }
+    }
+
+    protected void assertResultIsValidXYZ(double xyz) {
+        if (!isValidXYZ(xyz)) {
+            throw new ArithmeticException("calculated x, y or z is not finite");
+        }
+    }
+
+    protected void assertStateIsValidXYZ(double xyz) {
+        if (!isValidXYZ(xyz)) {
+            throw new IllegalStateException("x, y or z is not finite");
+        }
+    }
+
+    /**
+     * Checks weather coordinate x or coordinate or coordinate z is valid.
+     */
+    protected boolean isValidXYZ(double xyz) {
+        return Double.isFinite(xyz);
     }
 }
