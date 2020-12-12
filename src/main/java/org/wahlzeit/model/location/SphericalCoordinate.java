@@ -111,7 +111,7 @@ public class SphericalCoordinate extends AbstractCoordinate {
     }
 
     public SphericalCoordinate asSphericalCoordinate() {
-        return this;
+        return doAsSphericalCoordinate();
     }
 
     /**
@@ -120,6 +120,7 @@ public class SphericalCoordinate extends AbstractCoordinate {
      */
     @Override
     protected SphericalCoordinate doAsSphericalCoordinate() {
+        assertClassInvariants();
         return this;
     }
 

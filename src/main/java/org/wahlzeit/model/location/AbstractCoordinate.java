@@ -19,7 +19,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     public static final int SCALE = 12;
 
     @Override
-    public CartesianCoordinate asCartesianCoordinate() throws ConversionException {
+    public CartesianCoordinate asCartesianCoordinate() {
         assertClassInvariants();
 
         CartesianCoordinate coordinate = doAsCartesianCoordinate();
@@ -32,7 +32,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     protected abstract CartesianCoordinate doAsCartesianCoordinate();
 
     @Override
-    public SphericalCoordinate asSphericalCoordinate() throws ConversionException {
+    public SphericalCoordinate asSphericalCoordinate() {
         assertClassInvariants();
 
         SphericalCoordinate coordinate = doAsSphericalCoordinate();
@@ -202,7 +202,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
 
     protected void assertResultIsEqual(Coordinate other) {
         if (!this.isEqual(other)) {
-            throw new ConversionException("Converted Coordinate is not equal to originating Coordinate");
+            throw new ArithmeticException("Converted Coordinate is not equal to originating Coordinate");
         }
     }
 

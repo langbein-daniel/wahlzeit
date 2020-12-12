@@ -87,10 +87,11 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     @Override
     public CartesianCoordinate asCartesianCoordinate() {
-        return this;
+        return doAsCartesianCoordinate();
     }
 
     public CartesianCoordinate doAsCartesianCoordinate() {
+        assertClassInvariants();
         return this;
     }
 

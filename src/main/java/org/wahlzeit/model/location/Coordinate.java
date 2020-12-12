@@ -2,31 +2,42 @@ package org.wahlzeit.model.location;
 
 import org.wahlzeit.services.Persistent;
 
-public interface Coordinate extends Persistent, Cloneable{
+public interface Coordinate extends Persistent, Cloneable {
     /**
-     * @throws ConversionException if an internal conversion error occurred and
-     *   the converted result does not represent this Coordinate.
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @throws ArithmeticException   if an internal conversion error occurred and
+     *                               the converted Coordinate does not represent the same point in space as this Coordinate.
      */
-    CartesianCoordinate asCartesianCoordinate() throws ConversionException;
-    /**
-     * @throws ConversionException if an internal conversion error occurred and
-     *   the converted result does not represent this Coordinate.
-     */
-    SphericalCoordinate asSphericalCoordinate() throws ConversionException;
+    CartesianCoordinate asCartesianCoordinate() throws IllegalStateException, ArithmeticException;
 
     /**
-     * @throws NullPointerException if the given Coordinate is null
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @throws ArithmeticException   if an internal conversion error occurred and
+     *                               the converted Coordinate does not represent the same point in space as this Coordinate.
      */
-    double getCartesianDistance(Coordinate other) throws NullPointerException;
-    /**
-     * @throws NullPointerException if the given Coordinate is null
-     */
-    double getCentralAngle(Coordinate other) throws NullPointerException;
+    SphericalCoordinate asSphericalCoordinate() throws IllegalArgumentException, ArithmeticException;
 
     /**
-     * @throws NullPointerException if the given Coordinate is null
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @throws NullPointerException  if the given Coordinate "other" is null
+     * @throws ArithmeticException   if an internal calculation error occurred and
+     *                               the resulting distance is not correct
      */
-    boolean isEqual(Coordinate other) throws NullPointerException;
+    double getCartesianDistance(Coordinate other) throws IllegalStateException, NullPointerException, ArithmeticException;
+
+    /**
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @throws NullPointerException  if the given Coordinate "other" is null
+     * @throws ArithmeticException   if an internal calculation error occurred and
+     *                               the resulting angle is not correct
+     */
+    double getCentralAngle(Coordinate other) throws IllegalStateException, NullPointerException, ArithmeticException;
+
+    /**
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @throws NullPointerException  if the given Coordinate "other" is null
+     */
+    boolean isEqual(Coordinate other) throws IllegalStateException, NullPointerException;
 
     Object clone();
 }
