@@ -2,6 +2,7 @@ package org.wahlzeit.model.location;
 
 import org.wahlzeit.utils.DoubleUtil;
 
+import static java.lang.Math.PI;
 import static org.wahlzeit.model.location.CartesianCoordinate.CENTER;
 import static org.wahlzeit.utils.DoubleUtil.TWO_PI;
 
@@ -314,7 +315,7 @@ public class SphericalCoordinate extends AbstractCoordinate {
     }
 
     protected boolean isValidTheta(double theta) {
-        return Double.isFinite(theta) && theta <= Math.PI;
+        return Double.isFinite(theta) && theta >= 0.0 && theta <= PI;
     }
 
 

@@ -3,8 +3,10 @@ package org.wahlzeit.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static java.lang.Math.PI;
+
 public class DoubleUtil {
-    public static final double TWO_PI = Math.PI * 2.0;
+    public static final double TWO_PI = PI * 2.0;
 
     /**
      * @param x: some n umber

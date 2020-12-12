@@ -174,7 +174,7 @@ public class AbstractCoordinateTest {
 
     @Test
     public void test_centralAngle_orthogonal() {
-        double expected = Math.PI / 2.0; // 90° -> orthogonal
+        double expected = PI / 2.0; // 90° -> orthogonal
 
         test_centralAngle_Helper(orthogonalLocations[0], orthogonalLocations[1], expected);
         test_centralAngle_Helper(orthogonalLocations[0], orthogonalLocations[2], expected);

@@ -6,6 +6,7 @@ import org.wahlzeit.utils.DoubleUtil;
 import java.util.*;
 import java.util.stream.DoubleStream;
 
+import static java.lang.Math.PI;
 import static org.junit.Assert.*;
 import static org.wahlzeit.model.location.AbstractCoordinate.SCALE;
 import static org.wahlzeit.model.location.AbstractCoordinateTest.accuracy;
@@ -30,6 +31,21 @@ public class CartesianCoordinateTest {
         assertTrue(message, DoubleUtil.isEqual(expected.getZ(), actual.getZ(), SCALE));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newCartesioanArguments(){
+        CartesianCoordinate c = new CartesianCoordinate(0.0, 0.0, Double.POSITIVE_INFINITY);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newCartesioanArguments2(){
+        CartesianCoordinate c = new CartesianCoordinate(0.0, Double.NaN, 0.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newCartesioanArguments3(){
+        CartesianCoordinate c = new CartesianCoordinate(Double.NEGATIVE_INFINITY, 0.0, 0.0);
+    }
+
     @Test
     public void test_newCartesian(){
         for(LocationTuple location:AbstractCoordinateTest.locations){
@@ -47,7 +63,7 @@ public class CartesianCoordinateTest {
         CartesianCoordinate a = orthogonalLocations[0].cartesian;
         CartesianCoordinate b = orthogonalLocations[1].cartesian;
         CartesianCoordinate c = orthogonalLocations[2].cartesian;
-        double halfPi = Math.PI/2.0;
+        double halfPi = PI/2.0;
 
         assertEquals(halfPi, a.getCentralAngle(b), accuracy);
         assertEquals(halfPi, a.getCentralAngle(c), accuracy);
@@ -84,6 +100,16 @@ public class CartesianCoordinateTest {
         assertEquals(expectedDistance, actual1, epsilon);
         assertEquals(expectedDistance, actual2, epsilon);
         assertEquals(expectedDistance, actual3, epsilon);
+    }
+
+    @Test(expected = ArithmeticException.class)
+    public void test_infiniteDistance(){
+        double almostInfinity = Double.MAX_VALUE * 0.9;
+        CartesianCoordinate left = new CartesianCoordinate(-almostInfinity, 0.0, 0.0);
+        CartesianCoordinate right = new CartesianCoordinate(almostInfinity, 0.0, 0.0);
+
+        // resulting distance is too large for a double number
+        left.getCartesianDistance(right);
     }
 
     @Test

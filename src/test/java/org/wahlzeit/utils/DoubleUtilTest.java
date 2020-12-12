@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static java.lang.Math.PI;
 import static org.junit.Assert.*;
 
 /**
@@ -19,7 +20,7 @@ public class DoubleUtilTest {
          * Using the modulus operator, one can subtract
          * multiples of 2*pi from x so that the result is in the range
          */
-        double upperRangeLimit = 2.0 * Math.PI;
+        double upperRangeLimit = 2.0 * PI;
         double factor = 1.75;
         double x = factor * upperRangeLimit; // x is not in the range
         double expected = 0.75 * upperRangeLimit;
@@ -33,7 +34,7 @@ public class DoubleUtilTest {
 
     @Test
     public void negativeDoubleRemainder(){
-        double upperRangeLimit = 2.0 * Math.PI;
+        double upperRangeLimit = 2.0 * PI;
         double factor = -0.75;
         double x = factor * upperRangeLimit; // x is not in the range
         double expected = 0.25 * upperRangeLimit;

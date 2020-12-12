@@ -25,6 +25,46 @@ public class SphericalCoordinateTest {
         assertTrue(message, DoubleUtil.isEqual(expected.getPhi(), actual.getPhi(), SCALE));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newSphericalArguments() {
+        double radius = -1.0; // smaller than zero
+        double theta = 0.0;
+        double phi = 0.0;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newSphericalArguments2() {
+        double radius = 0.0;
+        double theta = -1; // smaller than zero
+        double phi = 0.0;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newSphericalArguments3() {
+        double radius = 0.0;
+        double theta = PI * 1.1; // larger than PI
+        double phi = 0.0;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newSphericalArguments4() {
+        double radius = 0.0;
+        double theta = 0.0;
+        double phi = Double.NaN;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_newSphericalArguments5() {
+        double radius = 0.0;
+        double theta = 0.0;
+        double phi = Double.POSITIVE_INFINITY;
+        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+    }
+
     @Test
     public void test_newSpherical() {
         double radius = 1.0;
@@ -66,7 +106,7 @@ public class SphericalCoordinateTest {
         SphericalCoordinate a = orthogonalLocations[0].spherical;
         SphericalCoordinate b = orthogonalLocations[1].spherical;
         SphericalCoordinate c = orthogonalLocations[2].spherical;
-        double halfPi = Math.PI / 2.0;
+        double halfPi = PI / 2.0;
 
         assertEquals(halfPi, a.getCentralAngle(b), accuracy);
         assertEquals(halfPi, a.getCentralAngle(c), accuracy);
