@@ -12,6 +12,11 @@ public class Location extends DataObject {
 
     protected final Coordinate coordinate;
 
+    /**
+     * @methodtype constructor
+     *
+     * Creates a new Location with a default coordinate.
+     */
     public Location() {
         coordinate = (Coordinate) DEFAULT_COORDINATE.clone();
         incWriteCount();

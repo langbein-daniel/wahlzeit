@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static java.lang.Math.PI;
+
 /**
  * Note: A static Coordinate object representing the center can be found in subclass CartesianCoordinate.
  */
@@ -73,7 +75,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
         double angle = doGetCentralAngle(other);
 
         assertResultIsEqual(before);
-        assertResultIsValidAngle(angle);
+        assertResultIsValidCentralAngle(angle);
         assertClassInvariants();
         return angle;
     }
@@ -85,10 +87,9 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     }
 
     /**
+     * @return false if obj is null or not a Coordinate object. Otherwise: isEqual((Coordinate) obj)
      * @methodtype comparison
      * @methodproperties composed
-     *
-     * @return false if obj is null or not a Coordinate object. Otherwise: isEqual((Coordinate) obj)
      */
     @Override
     public boolean equals(Object obj) {
@@ -220,6 +221,12 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
      */
     protected boolean isValidAngle(double angle) {
         return Double.isFinite(angle) && angle < DoubleUtil.TWO_PI;
+    }
+
+    protected void assertResultIsValidCentralAngle(double angle) {
+        if (!Double.isFinite(angle) && 0.0 <= angle && angle <= PI) {
+            throw new ArithmeticException("calculated angle is not in range [0,pi]");
+        }
     }
 
     protected void assertResultIsValidDistance(double distance) {
