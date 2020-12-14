@@ -45,6 +45,13 @@ public class SphericalCoordinate extends AbstractCoordinate {
      */
     protected double phi;
 
+    /**
+     * @param radius must be positive finite
+     * @param theta  angle in radians in the range [0, pi]
+     * @param phi    angle in radians, must be finite
+     * @throws IllegalArgumentException if the given parameter violate the constraints
+     * @methodtype constructor
+     */
     public SphericalCoordinate(double radius, double theta, double phi) {
         assertArgumentIsValidRadius(radius);
         assertArgumentIsValidTheta(theta);
@@ -57,26 +64,43 @@ public class SphericalCoordinate extends AbstractCoordinate {
         assertClassInvariants();
     }
 
+    /**
+     * @throws NullPointerException  See SphericalCoordinate(Coordinate)
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @methodtype constructor
+     * @methodproperties convenience constructor
+     */
     public SphericalCoordinate(SphericalCoordinate c) {
         this(c.getRadius(), c.getTheta(), c.getPhi());
     }
 
-    public SphericalCoordinate(Coordinate coordinate) {
-        assertClassInvariants();
+    /**
+     * @throws NullPointerException  if the given Coordinate is null
+     * @throws ArithmeticException   if the given Coordinate converted to a CartesianCoordinate has
+     *                               infinite or NaN values for x, y or z
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @methodtype constructor
+     */
+    public SphericalCoordinate(Coordinate coordinate) throws NullPointerException {
+        assertArgumentNotNull(coordinate);
+
+        CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
+        double x = cartesian.getX();
+        double y = cartesian.getY();
+        double z = cartesian.getZ();
+        DoubleUtil.assertResultIsFinite(x);
+        DoubleUtil.assertResultIsFinite(y);
+        DoubleUtil.assertResultIsFinite(z);
+
 
         double radius, theta, phi;
         {
-            CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
 
             if (cartesian.equals(CENTER)) {
                 radius = 0.0;
                 theta = 0.0;
                 phi = 0.0;
             } else {
-                double x = cartesian.getX();
-                double y = cartesian.getY();
-                double z = cartesian.getZ();
-
                 /* distance from center = sqrt(x^2 + y^2 + z^2) */
                 radius = cartesian.getCartesianDistance(CENTER);
 
@@ -210,8 +234,8 @@ public class SphericalCoordinate extends AbstractCoordinate {
     public String toString() {
         return "SphericalCoordinate in degrees{" +
                 "radius=" + radius +
-                ", theta=" + theta/PI*180.0 +
-                ", phi=" + phi/PI*180.0 +
+                ", theta=" + 180.0 * theta / PI +
+                ", phi=" + 180.0 * phi / PI +
                 '}';
     }
 

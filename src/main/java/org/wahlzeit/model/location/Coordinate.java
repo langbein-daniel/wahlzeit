@@ -3,6 +3,7 @@ package org.wahlzeit.model.location;
 import org.wahlzeit.services.Persistent;
 
 public interface Coordinate extends Persistent, Cloneable {
+
     /**
      * @throws IllegalStateException if the class invariants of this object are not adhered
      * @throws ArithmeticException   if an internal conversion error occurred and

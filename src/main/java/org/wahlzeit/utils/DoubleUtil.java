@@ -103,8 +103,22 @@ public class DoubleUtil {
      * Can be used to assert that some double argument is not negative, infinite or NaN
      */
     public static void assertArgumentIsPositiveFinite(double d) throws IllegalArgumentException {
+        assertArgumentIsPositiveFinite(d, "negative double value");
+    }
+
+    public static void assertArgumentIsPositiveFinite(double d, String message) throws IllegalArgumentException {
         if (!isPositiveFinite(d)) {
-            throw new IllegalArgumentException("negative double value");
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    public static void assertResultIsFinite(double d){
+        assertResultIsFinite(d, "infinite or NaN double value");
+    }
+
+    public static void assertResultIsFinite(double d, String message){
+        if(!Double.isFinite(d)){
+            throw new ArithmeticException(message);
         }
     }
 

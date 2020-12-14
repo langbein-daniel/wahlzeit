@@ -28,9 +28,12 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     protected double z = 0.0;
 
+    /**
+     * @throws IllegalArgumentException if any of x, y or z is not a finite number.
+     * @throws IllegalStateException    if the class invariants of this object are not adhered
+     * @methodtype constructor
+     */
     public CartesianCoordinate(double x, double y, double z) {
-        assertClassInvariants();
-
         assertArgumentIsValidXYZ(x);
         assertArgumentIsValidXYZ(y);
         assertArgumentIsValidXYZ(z);
@@ -42,26 +45,42 @@ public class CartesianCoordinate extends AbstractCoordinate {
         assertClassInvariants();
     }
 
+    /**
+     * @throws NullPointerException  See CartesianCoordinate(Coordinate)
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @methodtype constructor
+     * @methodproperties convenience constructor
+     */
     public CartesianCoordinate(CartesianCoordinate c) {
         this(c.getX(), c.getY(), c.getZ());
     }
 
-    public CartesianCoordinate(Coordinate coordinate) throws IllegalArgumentException {
-        assertClassInvariants();
+    /**
+     * @throws NullPointerException  if the given Coordinate is null
+     * @throws ArithmeticException   if the given Coordinate converted to a SphericalCoordinate has
+     *                               infinite or NaN values for radius, theta or phi
+     * @throws IllegalStateException if the class invariants of this object are not adhered
+     * @methodtype constructor
+     */
+    public CartesianCoordinate(Coordinate coordinate) throws NullPointerException {
         assertArgumentNotNull(coordinate);
+
+        SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
+        double radius = spherical.getRadius();
+        double theta = spherical.getTheta();
+        double phi = spherical.getPhi();
+        DoubleUtil.assertResultIsFinite(radius);
+        DoubleUtil.assertResultIsFinite(theta);
+        DoubleUtil.assertResultIsFinite(phi);
+
 
         double x, y, z;
         {
-            SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
-            double radius = spherical.getRadius();
-
             if (DoubleUtil.isEqual(radius, 0.0, SCALE)) {
                 x = 0.0;
                 y = 0.0;
                 z = 0.0;
             } else {
-                double phi = spherical.getPhi();
-                double theta = spherical.getTheta();
                 double sinTheta = Math.sin(theta);
 
                 x = radius * sinTheta * Math.cos(phi);
@@ -290,7 +309,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     /**
-     * Checks weather coordinate x or coordinate or coordinate z is valid.
+     * Checks weather the given coordinate (x, y or z) is valid.
      */
     protected boolean isValidXYZ(double xyz) {
         return Double.isFinite(xyz);

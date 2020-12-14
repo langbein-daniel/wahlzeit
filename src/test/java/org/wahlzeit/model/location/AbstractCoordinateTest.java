@@ -2,9 +2,7 @@ package org.wahlzeit.model.location;
 
 import org.junit.Test;
 
-
 import java.util.*;
-import java.util.stream.DoubleStream;
 
 import static java.lang.Math.PI;
 import static org.junit.Assert.*;

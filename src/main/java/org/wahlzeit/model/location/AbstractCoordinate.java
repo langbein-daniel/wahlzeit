@@ -47,6 +47,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public double getCartesianDistance(Coordinate other) {
         assertClassInvariants();
+        assertArgumentNotNull(other);
         AbstractCoordinate before = (AbstractCoordinate) this.clone();
 
         double distance = doGetCartesianDistance(other);
@@ -66,6 +67,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public double getCentralAngle(Coordinate other) {
         assertClassInvariants();
+        assertArgumentNotNull(other);
         AbstractCoordinate before = (AbstractCoordinate) this.clone();
 
         double angle = doGetCentralAngle(other);
@@ -85,14 +87,15 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     /**
      * @methodtype comparison
      * @methodproperties composed
+     *
+     * @return false if obj is null or not a Coordinate object. Otherwise: isEqual((Coordinate) obj)
      */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Coordinate)) return false;
-        Coordinate coordinate = (Coordinate) obj;
 
-        return isEqual(coordinate);
+        return isEqual((Coordinate) obj);
     }
 
     /**
@@ -194,9 +197,9 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
 
     protected abstract void assertClassInvariants();
 
-    protected void assertArgumentNotNull(Coordinate c) {
+    protected void assertArgumentNotNull(Coordinate c) throws NullPointerException {
         if (c == null) {
-            throw new IllegalArgumentException("Coordinate must not be null");
+            throw new NullPointerException("Coordinate must not be null");
         }
     }
 
