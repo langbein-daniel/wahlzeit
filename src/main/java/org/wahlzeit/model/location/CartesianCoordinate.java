@@ -1,8 +1,11 @@
 package org.wahlzeit.model.location;
 
+import org.wahlzeit.contract.AssertArgument;
 import org.wahlzeit.contract.AssertResult;
 import org.wahlzeit.utils.DoubleUtil;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 /**

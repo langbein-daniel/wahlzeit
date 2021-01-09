@@ -71,18 +71,12 @@ public class Location extends DataObject {
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
-        double x = rset.getDouble("coordinate_x");
-        double y = rset.getDouble("coordinate_y");
-        double z = rset.getDouble("coordinate_z");
-        coordinate = CartesianCoordinate.newCartesianCoordinate(x, y, z);
+        coordinate = AbstractCoordinate.readFrom(rset);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
-        CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
-        rset.updateDouble("coordinate_x", cartesian.getX());
-        rset.updateDouble("coordinate_y", cartesian.getY());
-        rset.updateDouble("coordinate_z", cartesian.getZ());
+        coordinate.writeOn(rset);
     }
 
     @Override

@@ -6,6 +6,9 @@ import org.wahlzeit.contract.NotNull;
 import org.wahlzeit.contract.Nullable;
 import org.wahlzeit.utils.*;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import static java.lang.Math.PI;
 
 /**
@@ -132,6 +135,25 @@ public abstract class AbstractCoordinate implements Coordinate {
         return this.asCartesianCoordinate().toString();
     }
 
+    //=== Persistence ===
+
+    public static Coordinate readFrom(ResultSet rset) throws SQLException {
+        AssertArgument.notNull(rset);
+
+        double x = rset.getDouble("coordinate_x");
+        double y = rset.getDouble("coordinate_y");
+        double z = rset.getDouble("coordinate_z");
+        return CartesianCoordinate.newCartesianCoordinate(x, y, z);
+    }
+
+    public void writeOn(ResultSet rset) throws SQLException {
+        AssertArgument.notNull(rset);
+
+        CartesianCoordinate cartesian = this.asCartesianCoordinate();
+        rset.updateDouble("coordinate_x", cartesian.getX());
+        rset.updateDouble("coordinate_y", cartesian.getY());
+        rset.updateDouble("coordinate_z", cartesian.getZ());
+    }
 
     //=== Assertions ===
 
