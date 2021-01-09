@@ -23,7 +23,10 @@ public abstract class AbstractCoordinate implements Coordinate {
 
     @Override
     public CartesianCoordinate asCartesianCoordinate() {
-        CartesianCoordinate coordinate = doAsCartesianCoordinate();
+        CartesianCoordinate coordinate = CartesianCoordinate.getCoordinateFromHash(hashCode());
+        if (coordinate == null) {
+            coordinate = doAsCartesianCoordinate();
+        }
 
         assertResultNotNull(coordinate);
         assertResultIsEqual(coordinate);
@@ -34,7 +37,10 @@ public abstract class AbstractCoordinate implements Coordinate {
 
     @Override
     public SphericalCoordinate asSphericalCoordinate() {
-        SphericalCoordinate coordinate = doAsSphericalCoordinate();
+        SphericalCoordinate coordinate = SphericalCoordinate.getCoordinateFromHash(hashCode());
+        if (coordinate == null) {
+            coordinate = doAsSphericalCoordinate();
+        }
 
         assertResultNotNull(coordinate);
         assertResultIsEqual(coordinate);

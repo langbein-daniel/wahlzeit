@@ -49,7 +49,12 @@ public class CartesianCoordinateTest {
     }
 
     @Test
-    public void test_newCartesian(){
+    public void test_newCartesian1(){
+        CartesianCoordinate.newCartesianCoordinate(1d,2d,3d);
+    }
+
+    @Test
+    public void test_newCartesian2(){
         for(LocationTuple location:AbstractCoordinateTest.locations){
             CartesianCoordinate expected = location.cartesian;
 

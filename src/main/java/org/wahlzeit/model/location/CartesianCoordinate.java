@@ -1,11 +1,8 @@
 package org.wahlzeit.model.location;
 
-import org.wahlzeit.contract.AssertArgument;
 import org.wahlzeit.contract.AssertResult;
 import org.wahlzeit.utils.DoubleUtil;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -17,10 +14,10 @@ import java.util.*;
 public class CartesianCoordinate extends AbstractCoordinate {
     public static final CartesianCoordinate CENTER = new CartesianCoordinate(0.0, 0.0, 0.0);
 
-    private static final Map<Integer, CartesianCoordinate> allCartesianCoordinates = new HashMap<>();
+    private static final Map<Integer, CartesianCoordinate> sharedObjects = new HashMap<>();
 
     static {
-        allCartesianCoordinates.put(CENTER.hashCode(), CENTER);
+        sharedObjects.put(CENTER.hashCode(), CENTER);
     }
 
 
@@ -44,6 +41,14 @@ public class CartesianCoordinate extends AbstractCoordinate {
      * The value object as unique String
      */
     protected final String stringRepresentation;
+
+    /**
+     * @return Null if a matching CartesianCoordinate object is not yet shared,
+     * or returns the corresponding CartesianCoordinate Object
+     */
+    public static CartesianCoordinate getCoordinateFromHash(int hashCode) {
+        return sharedObjects.get(hashCode);
+    }
 
     /**
      * @throws IllegalArgumentException if any of x, y or z is not a finite number.
@@ -83,6 +88,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
     public CartesianCoordinate asCartesianCoordinate() {
         return doAsCartesianCoordinate();
     }
+
     /**
      * @methodtype conversion
      * @methodproperties primitive
@@ -213,6 +219,11 @@ public class CartesianCoordinate extends AbstractCoordinate {
         return stringRepresentation;
     }
 
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
     /**
      * Objects of this class are immutable shared value objects.
      *
@@ -221,12 +232,12 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     protected static CartesianCoordinate shareCoordinateValue(CartesianCoordinate coordinate) {
         int hash = coordinate.hashCode();
-        CartesianCoordinate sharedCoordinate = allCartesianCoordinates.get(hash);
+        CartesianCoordinate sharedCoordinate = sharedObjects.get(hash);
 
         if (sharedCoordinate == null) {
-            sharedCoordinate = allCartesianCoordinates.get(hash);
+            sharedCoordinate = sharedObjects.get(hash);
             if (sharedCoordinate == null) {
-                allCartesianCoordinates.put(hash, coordinate);
+                sharedObjects.put(hash, coordinate);
                 sharedCoordinate = coordinate;
             }
         }

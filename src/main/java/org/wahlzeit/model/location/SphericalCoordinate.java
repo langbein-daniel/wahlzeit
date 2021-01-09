@@ -16,7 +16,7 @@ import static java.lang.Math.PI;
  * Unit (of phi and theta): radians (rad)
  */
 public class SphericalCoordinate extends AbstractCoordinate {
-    private static final Map<Integer, SphericalCoordinate> allSphericalCoordinates = new HashMap<>();
+    private static final Map<Integer, SphericalCoordinate> sharedObjects = new HashMap<>();
 
 
     /**
@@ -57,6 +57,13 @@ public class SphericalCoordinate extends AbstractCoordinate {
      */
     protected final CartesianCoordinate cartesianRepresentation;
 
+    /**
+     * @return Null if a matching SphericalCoordinate object is not yet shared,
+     * or returns the corresponding SphericalCoordinate Object
+     */
+    public static SphericalCoordinate getCoordinateFromHash(int hashCode) {
+        return sharedObjects.get(hashCode);
+    }
 
     /**
      * @param radius must be positive finite
@@ -170,6 +177,11 @@ public class SphericalCoordinate extends AbstractCoordinate {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        return cartesianRepresentation.hashCode();
+    }
+
     /**
      * Objects of this class are immutable shared value objects.
      *
@@ -178,12 +190,12 @@ public class SphericalCoordinate extends AbstractCoordinate {
      */
     protected static SphericalCoordinate shareCoordinateValue(SphericalCoordinate coordinate) {
         int hash = coordinate.hashCode();
-        SphericalCoordinate sharedCoordinate = allSphericalCoordinates.get(hash);
+        SphericalCoordinate sharedCoordinate = sharedObjects.get(hash);
 
         if (sharedCoordinate == null) {
-            sharedCoordinate = allSphericalCoordinates.get(hash);
+            sharedCoordinate = sharedObjects.get(hash);
             if (sharedCoordinate == null) {
-                allSphericalCoordinates.put(hash, coordinate);
+                sharedObjects.put(hash, coordinate);
                 sharedCoordinate = coordinate;
             }
         }
