@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import static org.wahlzeit.model.location.AbstractCoordinate.SCALE;
 import static org.wahlzeit.model.location.AbstractCoordinateTest.accuracy;
 import static org.wahlzeit.model.location.AbstractCoordinateTest.orthogonalLocations;
+import static org.wahlzeit.model.location.SphericalCoordinate.newSphericalCoordinate;
 
 public class SphericalCoordinateTest {
     public static void assertEqualSpherical(SphericalCoordinate expected, SphericalCoordinate actual) {
@@ -30,7 +31,7 @@ public class SphericalCoordinateTest {
         double radius = -1.0; // smaller than zero
         double theta = 0.0;
         double phi = 0.0;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -38,7 +39,7 @@ public class SphericalCoordinateTest {
         double radius = 0.0;
         double theta = -1; // smaller than zero
         double phi = 0.0;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -46,7 +47,7 @@ public class SphericalCoordinateTest {
         double radius = 0.0;
         double theta = PI * 1.1; // larger than PI
         double phi = 0.0;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -54,7 +55,7 @@ public class SphericalCoordinateTest {
         double radius = 0.0;
         double theta = 0.0;
         double phi = Double.NaN;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -62,7 +63,7 @@ public class SphericalCoordinateTest {
         double radius = 0.0;
         double theta = 0.0;
         double phi = Double.POSITIVE_INFINITY;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class SphericalCoordinateTest {
         double radius = 1.0;
         double theta = 1.1;
         double phi = 1.2;
-        SphericalCoordinate spherical = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate spherical = newSphericalCoordinate(radius, theta, phi);
 
         assertEquals(radius, spherical.getRadius(), accuracy);
         assertEquals(theta, spherical.getTheta(), accuracy);
@@ -82,9 +83,9 @@ public class SphericalCoordinateTest {
         double radius = 1.0;
         double theta = 1.1;
         double phi = 1.2;
-        SphericalCoordinate expected = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate expected = newSphericalCoordinate(radius, theta, phi);
 
-        SphericalCoordinate actual = new SphericalCoordinate(expected);
+        SphericalCoordinate actual = expected.asSphericalCoordinate();
 
         assertEqualSpherical(expected, actual);
     }
@@ -94,7 +95,7 @@ public class SphericalCoordinateTest {
         for (LocationTuple location : AbstractCoordinateTest.locations) {
             SphericalCoordinate expected = location.spherical;
 
-            SphericalCoordinate actual = new SphericalCoordinate(expected);
+            SphericalCoordinate actual = expected.asSphericalCoordinate();
 
             assertEqualSpherical(expected, actual);
         }

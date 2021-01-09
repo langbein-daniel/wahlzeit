@@ -7,10 +7,12 @@ import java.util.*;
 import java.util.stream.DoubleStream;
 
 import static java.lang.Math.PI;
+import static java.lang.Math.exp;
 import static org.junit.Assert.*;
 import static org.wahlzeit.model.location.AbstractCoordinate.SCALE;
 import static org.wahlzeit.model.location.AbstractCoordinateTest.accuracy;
 import static org.wahlzeit.model.location.AbstractCoordinateTest.orthogonalLocations;
+import static org.wahlzeit.model.location.CartesianCoordinate.newCartesianCoordinate;
 
 
 /**
@@ -33,17 +35,17 @@ public class CartesianCoordinateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void test_newCartesioanArguments(){
-        CartesianCoordinate c = new CartesianCoordinate(0.0, 0.0, Double.POSITIVE_INFINITY);
+        CartesianCoordinate c = newCartesianCoordinate(0.0, 0.0, Double.POSITIVE_INFINITY);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_newCartesioanArguments2(){
-        CartesianCoordinate c = new CartesianCoordinate(0.0, Double.NaN, 0.0);
+        CartesianCoordinate c = newCartesianCoordinate(0.0, Double.NaN, 0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_newCartesioanArguments3(){
-        CartesianCoordinate c = new CartesianCoordinate(Double.NEGATIVE_INFINITY, 0.0, 0.0);
+        CartesianCoordinate c = newCartesianCoordinate(Double.NEGATIVE_INFINITY, 0.0, 0.0);
     }
 
     @Test
@@ -51,7 +53,7 @@ public class CartesianCoordinateTest {
         for(LocationTuple location:AbstractCoordinateTest.locations){
             CartesianCoordinate expected = location.cartesian;
 
-            CartesianCoordinate actual = new CartesianCoordinate(expected);
+            CartesianCoordinate actual = expected.asCartesianCoordinate();
 
             assertEqualCartesian(expected, actual);
         }
@@ -82,9 +84,9 @@ public class CartesianCoordinateTest {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate other1 = new CartesianCoordinate(x, y, z);
-        CartesianCoordinate other2 = new CartesianCoordinate(z, x, y);
-        CartesianCoordinate other3 = new CartesianCoordinate(y, z, x);
+        CartesianCoordinate other1 = newCartesianCoordinate(x, y, z);
+        CartesianCoordinate other2 = newCartesianCoordinate(z, x, y);
+        CartesianCoordinate other3 = newCartesianCoordinate(y, z, x);
 
 
         // manually calculated distance:
@@ -105,8 +107,8 @@ public class CartesianCoordinateTest {
     @Test(expected = ArithmeticException.class)
     public void test_infiniteDistance(){
         double almostInfinity = Double.MAX_VALUE * 0.9;
-        CartesianCoordinate left = new CartesianCoordinate(-almostInfinity, 0.0, 0.0);
-        CartesianCoordinate right = new CartesianCoordinate(almostInfinity, 0.0, 0.0);
+        CartesianCoordinate left = newCartesianCoordinate(-almostInfinity, 0.0, 0.0);
+        CartesianCoordinate right = newCartesianCoordinate(almostInfinity, 0.0, 0.0);
 
         // resulting distance is too large for a double number
         left.getCartesianDistance(right);
@@ -117,7 +119,7 @@ public class CartesianCoordinateTest {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = newCartesianCoordinate(x, y, z);
 
         // SCALE number of digits to the right of the decimal point of
         // double values from two coordinates shall be equal for the
@@ -130,7 +132,7 @@ public class CartesianCoordinateTest {
         double xWithError = x + error;
         double yWithError = y + error;
         double zWithError = z + error;
-        CartesianCoordinate other = new CartesianCoordinate(xWithError, yWithError, zWithError);
+        CartesianCoordinate other = newCartesianCoordinate(xWithError, yWithError, zWithError);
 
         assertEqualCartesian(expected, other);
     }
@@ -140,7 +142,7 @@ public class CartesianCoordinateTest {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = newCartesianCoordinate(x, y, z);
 
         // how many other Coordinates with random errors shall be compared with the expected Coordinate
         int loopCount = 100;
@@ -163,7 +165,7 @@ public class CartesianCoordinateTest {
             double xWithError = x + randomErrorIter.next();
             double yWithError = y +  randomErrorIter.next();
             double zWithError = z +  randomErrorIter.next();
-            CartesianCoordinate other = new CartesianCoordinate(xWithError, yWithError, zWithError);
+            CartesianCoordinate other = newCartesianCoordinate(xWithError, yWithError, zWithError);
             System.out.println(other.getX() + " | " + other.getY() + " | " + other.getZ());
             assertEqualCartesian(expected, other);
         }
@@ -175,13 +177,13 @@ public class CartesianCoordinateTest {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = newCartesianCoordinate(x, y, z);
 
         // no matter of the specified SCALE, this error should be considered as too large!
         double tooLargeError = 0.001;
-        CartesianCoordinate otherX = new CartesianCoordinate(x + tooLargeError, y, z);
-        CartesianCoordinate otherY = new CartesianCoordinate(x, y + tooLargeError, z);
-        CartesianCoordinate otherZ = new CartesianCoordinate(x, y, z + tooLargeError);
+        CartesianCoordinate otherX = newCartesianCoordinate(x + tooLargeError, y, z);
+        CartesianCoordinate otherY = newCartesianCoordinate(x, y + tooLargeError, z);
+        CartesianCoordinate otherZ = newCartesianCoordinate(x, y, z + tooLargeError);
 
         assertNotEquals(expected, otherX);
         assertNotEquals(expected, otherY);
@@ -194,15 +196,15 @@ public class CartesianCoordinateTest {
         double x = 3.0;
         double y = 7.0;
         double z = 9.0;
-        CartesianCoordinate expected = new CartesianCoordinate(x, y, z);
+        CartesianCoordinate expected = newCartesianCoordinate(x, y, z);
 
         // The factor 1.5 makes the error just a bit larger so that we have some free room
         // for internal calculation errors of isEqual(). Otherwise it might be that the error
         // annihilate itself and the compared Coordinate is considered equal.
         double slightlyTooLargeError = 1.5 * Math.pow(10, -AbstractCoordinate.SCALE);
-        CartesianCoordinate otherBX = new CartesianCoordinate(x + slightlyTooLargeError, y, z);
-        CartesianCoordinate otherBY = new CartesianCoordinate(x, y + slightlyTooLargeError, z);
-        CartesianCoordinate otherBZ = new CartesianCoordinate(x, y, z + slightlyTooLargeError);
+        CartesianCoordinate otherBX = newCartesianCoordinate(x + slightlyTooLargeError, y, z);
+        CartesianCoordinate otherBY = newCartesianCoordinate(x, y + slightlyTooLargeError, z);
+        CartesianCoordinate otherBZ = newCartesianCoordinate(x, y, z + slightlyTooLargeError);
 
         assertNotEquals(expected, otherBX);
         assertNotEquals(expected, otherBY);
@@ -234,7 +236,7 @@ public class CartesianCoordinateTest {
             double xWithError = x + randomErrorIter.next();
             double yWithError = y + randomErrorIter.next();
             double zWithError = z + randomErrorIter.next();
-            CartesianCoordinate cart = new CartesianCoordinate(xWithError, yWithError, zWithError);
+            CartesianCoordinate cart = newCartesianCoordinate(xWithError, yWithError, zWithError);
 
             int hash = cart.hashCode();
 

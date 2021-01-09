@@ -1,6 +1,9 @@
 package org.wahlzeit.model.location;
 
+import org.wahlzeit.contract.AssertResult;
 import org.wahlzeit.utils.DoubleUtil;
+
+import java.util.*;
 
 /**
  * Cartesian Coordinate
@@ -11,106 +14,78 @@ import org.wahlzeit.utils.DoubleUtil;
 public class CartesianCoordinate extends AbstractCoordinate {
     public static final CartesianCoordinate CENTER = new CartesianCoordinate(0.0, 0.0, 0.0);
 
+    private static final Map<Integer, CartesianCoordinate> allCartesianCoordinates = new HashMap<>();
+
+    static {
+        allCartesianCoordinates.put(CENTER.hashCode(), CENTER);
+    }
+
 
     /**
      * x-direction: In plane of Earth (latitude at 0 degrees);
      * from -180 to 0 degrees longitude
      */
-    protected double x = 0.0;
+    protected final double x;
     /**
      * y-direction: In plane of Earth (latitude at 0 degrees);
      * from -90 to +90 degrees longitude
      */
-    protected double y = 0.0;
+    protected final double y;
     /**
      * z-direction: From South to North Pole or in geographical words
      * from -90 to +90 degrees latitude
      */
-    protected double z = 0.0;
+    protected final double z;
+
+    /**
+     * The value object as unique String
+     */
+    protected final String stringRepresentation;
+
+    /**
+     * @throws IllegalArgumentException if any of x, y or z is not a finite number.
+     * @throws IllegalStateException    if the class invariants of this object are not adhered
+     * @methodtype factory
+     * @methodproperties composed
+     */
+    public static CartesianCoordinate newCartesianCoordinate(double x, double y, double z) {
+        CartesianCoordinate newCoordinate = new CartesianCoordinate(x, y, z);
+        return shareCoordinateValue(newCoordinate);
+    }
 
     /**
      * @throws IllegalArgumentException if any of x, y or z is not a finite number.
      * @throws IllegalStateException    if the class invariants of this object are not adhered
      * @methodtype constructor
      */
-    public CartesianCoordinate(double x, double y, double z) {
+    private CartesianCoordinate(double x, double y, double z) {
         assertArgumentIsValidXYZ(x);
         assertArgumentIsValidXYZ(y);
         assertArgumentIsValidXYZ(z);
 
-        doSetX(x);
-        doSetY(y);
-        doSetZ(z);
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.stringRepresentation = "CartesianCoordinate{" +
+                "x=" + DoubleUtil.roundAsString(x, AbstractCoordinate.SCALE) +
+                ", y=" + DoubleUtil.roundAsString(y, AbstractCoordinate.SCALE) +
+                ", z=" + DoubleUtil.roundAsString(z, AbstractCoordinate.SCALE) +
+                '}';
 
         assertClassInvariants();
     }
 
-    /**
-     * @throws NullPointerException  See CartesianCoordinate(Coordinate)
-     * @throws IllegalStateException if the class invariants of this object are not adhered
-     * @methodtype constructor
-     * @methodproperties convenience constructor
-     */
-    public CartesianCoordinate(CartesianCoordinate c) {
-        this(c.getX(), c.getY(), c.getZ());
+
+    @Override
+    public CartesianCoordinate asCartesianCoordinate() {
+        return doAsCartesianCoordinate();
     }
-
-    /**
-     * @throws NullPointerException  if the given Coordinate is null
-     * @throws ArithmeticException   if the given Coordinate converted to a SphericalCoordinate has
-     *                               infinite or NaN values for radius, theta or phi
-     * @throws IllegalStateException if the class invariants of this object are not adhered
-     * @methodtype constructor
-     */
-    public CartesianCoordinate(Coordinate coordinate) throws NullPointerException {
-        assertArgumentNotNull(coordinate);
-
-        SphericalCoordinate spherical = coordinate.asSphericalCoordinate();
-        double radius = spherical.getRadius();
-        double theta = spherical.getTheta();
-        double phi = spherical.getPhi();
-        DoubleUtil.assertResultIsFinite(radius);
-        DoubleUtil.assertResultIsFinite(theta);
-        DoubleUtil.assertResultIsFinite(phi);
-
-
-        double x, y, z;
-        {
-            if (DoubleUtil.isEqual(radius, 0.0, SCALE)) {
-                x = 0.0;
-                y = 0.0;
-                z = 0.0;
-            } else {
-                double sinTheta = Math.sin(theta);
-
-                x = radius * sinTheta * Math.cos(phi);
-                y = radius * sinTheta * Math.sin(phi);
-                z = radius * Math.cos(theta);
-            }
-        }
-
-        assertResultIsValidXYZ(x);
-        assertResultIsValidXYZ(y);
-        assertResultIsValidXYZ(z);
-
-        doSetX(x);
-        doSetY(y);
-        doSetZ(z);
-
-        assertClassInvariants();
-    }
-
     /**
      * @methodtype conversion
      * @methodproperties primitive
      */
     @Override
-    public CartesianCoordinate asCartesianCoordinate() {
-        return doAsCartesianCoordinate();
-    }
-
-    public CartesianCoordinate doAsCartesianCoordinate() {
-        assertClassInvariants();
+    protected CartesianCoordinate doAsCartesianCoordinate() {
         return this;
     }
 
@@ -120,7 +95,28 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     @Override
     protected SphericalCoordinate doAsSphericalCoordinate() {
-        return new SphericalCoordinate(this);
+        double radius, theta, phi;
+        {
+            if (this.equals(CENTER)) {
+                radius = 0.0;
+                theta = 0.0;
+                phi = 0.0;
+            } else {
+                /* distance from center = sqrt(x^2 + y^2 + z^2) */
+                radius = this.getCartesianDistance(CENTER);
+
+                /* arctan( sqrt(x^2 + y^2) / z  ) = arccos( z / radius ) */
+                // setTheta(Math.atan(Math.hypot(x, y) / z));
+                theta = Math.acos(getZ() / radius);
+
+                /* arctan(y, x) may produce results with wrong sign ! */
+                //phi = Math.atan(y / x);
+                /* atan2(y, x) */
+                phi = Math.atan2(getY(), getX());
+            }
+        }
+
+        return SphericalCoordinate.newSphericalCoordinate(radius, theta, phi);
     }
 
     /**
@@ -138,9 +134,9 @@ public class CartesianCoordinate extends AbstractCoordinate {
      * @methodproperties primitive
      */
     protected double doGetCartesianDistance(CartesianCoordinate other) {
-        double xDelta = Math.abs(other.x - x);
-        double yDelta = Math.abs(other.y - y);
-        double zDelta = Math.abs(other.z - z);
+        double xDelta = Math.abs(other.getX() - getX());
+        double yDelta = Math.abs(other.getY() - getY());
+        double zDelta = Math.abs(other.getZ() - getZ());
 
         double xyDistance = Math.hypot(xDelta, yDelta);
         return Math.hypot(xyDistance, zDelta); // xyzDistance
@@ -171,7 +167,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
         double oz = other.getZ(); /* other.x */
 
         // < (this as vector) , (other as vector) >
-        double scalarProd = x * ox + y * oy + z * oz;
+        double scalarProd = getX() * ox + getY() * oy + getZ() * oz;
         // || (this as vector) ||
         double thisDist = getCartesianDistance(CENTER);
         // || (other as vector) ||
@@ -180,30 +176,13 @@ public class CartesianCoordinate extends AbstractCoordinate {
         return Math.acos(scalarProd / (thisDist * otherDist));
     }
 
-    //=== Getter and Setter ===
+    //=== Getter ===
 
     /**
      * @methodtype get
      */
     public double getX() {
         return x;
-    }
-
-    /**
-     * @methodtype set
-     */
-    public void setX(double x) {
-        assertClassInvariants();
-        assertArgumentIsValidXYZ(x);
-
-        doSetX(x);
-
-        assertClassInvariants();
-    }
-
-    protected void doSetX(double x) {
-        this.x = x;
-        incWriteCount();
     }
 
     /**
@@ -214,49 +193,13 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     /**
-     * @methodtype set
-     */
-    public void setY(double y) {
-        assertClassInvariants();
-        assertArgumentIsValidXYZ(y);
-
-        doSetY(y);
-
-        assertClassInvariants();
-    }
-
-    protected void doSetY(double y) {
-        this.y = y;
-        incWriteCount();
-    }
-
-    /**
      * @methodtype get
      */
     public double getZ() {
         return z;
     }
 
-    /**
-     * @methodtype set
-     */
-    public void setZ(double z) {
-        assertClassInvariants();
-        assertArgumentIsValidXYZ(z);
-
-        doSetZ(z);
-
-        assertClassInvariants();
-    }
-
-    protected void doSetZ(double z) {
-        this.z = z;
-        incWriteCount();
-    }
-
-    public Object clone() {
-        return new CartesianCoordinate(getX(), getY(), getZ());
-    }
+    //=== Other ===
 
     /**
      * If and only if two CartesianCoordinates are considered equal,
@@ -264,20 +207,28 @@ public class CartesianCoordinate extends AbstractCoordinate {
      */
     @Override
     public String toString() {
-        return "CartesianCoordinate{" +
-                "x=" + DoubleUtil.roundAsString(x, AbstractCoordinate.SCALE) +
-                ", y=" + DoubleUtil.roundAsString(y, AbstractCoordinate.SCALE) +
-                ", z=" + DoubleUtil.roundAsString(z, AbstractCoordinate.SCALE) +
-                '}';
+        return stringRepresentation;
     }
 
-    //=== Persistence Methods ===
+    /**
+     * Objects of this class are immutable shared value objects.
+     *
+     * @param coordinate If the given value is not yet known/shared, it is added to a Map
+     * @return Reference to a shared value object
+     */
+    protected static CartesianCoordinate shareCoordinateValue(CartesianCoordinate coordinate) {
+        int hash = coordinate.hashCode();
+        CartesianCoordinate sharedCoordinate = allCartesianCoordinates.get(hash);
 
-    @Override
-    public void doReadFrom(CartesianCoordinate coordinate) {
-        this.x = coordinate.getX();
-        this.y = coordinate.getY();
-        this.z = coordinate.getZ();
+        if (sharedCoordinate == null) {
+            sharedCoordinate = allCartesianCoordinates.get(hash);
+            if (sharedCoordinate == null) {
+                allCartesianCoordinates.put(hash, coordinate);
+                sharedCoordinate = coordinate;
+            }
+        }
+
+        return sharedCoordinate;
     }
 
     //=== Assertions ===
@@ -287,6 +238,8 @@ public class CartesianCoordinate extends AbstractCoordinate {
         assertStateIsValidXYZ(getX());
         assertStateIsValidXYZ(getY());
         assertStateIsValidXYZ(getZ());
+        AssertResult.notNull(stringRepresentation);
+        AssertResult.greaterThan(stringRepresentation.length(), "CartesianCoordinate".length());
     }
 
 
@@ -296,7 +249,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
         }
     }
 
-    protected void assertResultIsValidXYZ(double xyz) {
+    protected static void assertResultIsValidXYZ(double xyz) {
         if (!isValidXYZ(xyz)) {
             throw new ArithmeticException("calculated x, y or z is not finite");
         }
@@ -311,7 +264,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
     /**
      * Checks weather the given coordinate (x, y or z) is valid.
      */
-    protected boolean isValidXYZ(double xyz) {
+    protected static boolean isValidXYZ(double xyz) {
         return Double.isFinite(xyz);
     }
 }

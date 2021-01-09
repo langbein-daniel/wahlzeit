@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 public class Location extends DataObject {
-    public static final Coordinate DEFAULT_COORDINATE = new CartesianCoordinate(1.0,2.0,3.0);
+    public static final Coordinate DEFAULT_COORDINATE = CartesianCoordinate.newCartesianCoordinate(1.2,3.4,5.6);
 
-    protected final Coordinate coordinate;
+    protected Coordinate coordinate;
 
     /**
      * @methodtype constructor
@@ -18,11 +18,11 @@ public class Location extends DataObject {
      * Creates a new Location with a default coordinate.
      */
     public Location() {
-        coordinate = (Coordinate) DEFAULT_COORDINATE.clone();
+        coordinate = DEFAULT_COORDINATE;
         incWriteCount();
     }
     public Location(double x, double y, double z){
-        coordinate = new CartesianCoordinate(x, y, z);
+        coordinate = CartesianCoordinate.newCartesianCoordinate(x, y, z);
         incWriteCount();
     }
 
@@ -65,23 +65,24 @@ public class Location extends DataObject {
     //=== Persistence Methods ===
 
     @Override
-    public boolean isDirty(){
-        return super.isDirty() || coordinate.isDirty();
-    }
-
-    @Override
     public String getIdAsString() {
         return null; // A Location object hast no ID. It is always part of a Photo.
     }
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
-        coordinate.readFrom(rset);
+        double x = rset.getDouble("coordinate_x");
+        double y = rset.getDouble("coordinate_y");
+        double z = rset.getDouble("coordinate_z");
+        coordinate = CartesianCoordinate.newCartesianCoordinate(x, y, z);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
-        coordinate.writeOn(rset);
+        CartesianCoordinate cartesian = coordinate.asCartesianCoordinate();
+        rset.updateDouble("coordinate_x", cartesian.getX());
+        rset.updateDouble("coordinate_y", cartesian.getY());
+        rset.updateDouble("coordinate_z", cartesian.getZ());
     }
 
     @Override

@@ -8,7 +8,9 @@ import static java.lang.Math.PI;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.wahlzeit.model.location.CartesianCoordinate.CENTER;
+import static org.wahlzeit.model.location.CartesianCoordinate.newCartesianCoordinate;
 import static org.wahlzeit.model.location.CartesianCoordinateTest.assertEqualCartesian;
+import static org.wahlzeit.model.location.SphericalCoordinate.newSphericalCoordinate;
 import static org.wahlzeit.model.location.SphericalCoordinateTest.assertEqualSpherical;
 
 public class AbstractCoordinateTest {
@@ -17,29 +19,29 @@ public class AbstractCoordinateTest {
     // Array of cartesian coordinates and their spherical equivalent.
     // This is used to verify results of converted coordinates
     public static final LocationTuple[] locations = new LocationTuple[]{
-            new LocationTuple(new CartesianCoordinate(0.0, 0.0, 0.0),
-                    new SphericalCoordinate(0.0, 0.0, 0.0)),
-            new LocationTuple(new CartesianCoordinate(1.0, 0.0, 0.0),
-                    new SphericalCoordinate(1.0, PI / 2.0, 0.0)),
-            new LocationTuple(new CartesianCoordinate(0.0, 1.0, 0.0),
-                    new SphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
-            new LocationTuple(new CartesianCoordinate(0.0, 0.0, 1.0),
-                    new SphericalCoordinate(1.0, 0.0, 0.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 0.0, 0.0),
+                    newSphericalCoordinate(0.0, 0.0, 0.0)),
+            new LocationTuple(newCartesianCoordinate(1.0, 0.0, 0.0),
+                    newSphericalCoordinate(1.0, PI / 2.0, 0.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 1.0, 0.0),
+                    newSphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 0.0, 1.0),
+                    newSphericalCoordinate(1.0, 0.0, 0.0)),
             // LocationTuple with x=-1,y=0,z=0 excluded a special case
-            new LocationTuple(new CartesianCoordinate(0.0, -1.0, 0.0),
-                    new SphericalCoordinate(1.0, PI / 2.0, -PI / 2.0)),
-            new LocationTuple(new CartesianCoordinate(0.0, 0.0, -1.0),
-                    new SphericalCoordinate(1.0, PI, 0.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, -1.0, 0.0),
+                    newSphericalCoordinate(1.0, PI / 2.0, -PI / 2.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 0.0, -1.0),
+                    newSphericalCoordinate(1.0, PI, 0.0)),
     };
 
     // The three different points in space are all "orthogonal" to each other (central angle of 90°)
     public static final LocationTuple[] orthogonalLocations = new LocationTuple[]{
-            new LocationTuple(new CartesianCoordinate(1.0, 0.0, 0.0),
-                    new SphericalCoordinate(1.0, PI / 2.0, 0.0)),
-            new LocationTuple(new CartesianCoordinate(0.0, 1.0, 0.0),
-                    new SphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
-            new LocationTuple(new CartesianCoordinate(0.0, 0.0, 1.0),
-                    new SphericalCoordinate(1.0, 0.0, 0.0)),
+            new LocationTuple(newCartesianCoordinate(1.0, 0.0, 0.0),
+                    newSphericalCoordinate(1.0, PI / 2.0, 0.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 1.0, 0.0),
+                    newSphericalCoordinate(1.0, PI / 2.0, PI / 2.0)),
+            new LocationTuple(newCartesianCoordinate(0.0, 0.0, 1.0),
+                    newSphericalCoordinate(1.0, 0.0, 0.0)),
     };
 
     public static double alternativeImpl_getCentralAngle(SphericalCoordinate ref, SphericalCoordinate other) {
@@ -173,15 +175,15 @@ public class AbstractCoordinateTest {
 
     @Test
     public void test_cartesianToSpherical_specialCase() {
-        CartesianCoordinate cartesian = new CartesianCoordinate(-1.0, 0.0, 0.0);
+        CartesianCoordinate cartesian = newCartesianCoordinate(-1.0, 0.0, 0.0);
         SphericalCoordinate converted = cartesian.asSphericalCoordinate();
 
         // expected:
         // radius = 1
         // polar angle = pi/2
         // azimuth = +/- pi    // both vales are ok -> assert absolute value is correct
-        SphericalCoordinate expectedA = new SphericalCoordinate(1.0, PI / 2.0, PI);
-        SphericalCoordinate expectedB = new SphericalCoordinate(1.0, PI / 2.0, -1.0 * PI);
+        SphericalCoordinate expectedA = newSphericalCoordinate(1.0, PI / 2.0, PI);
+        SphericalCoordinate expectedB = newSphericalCoordinate(1.0, PI / 2.0, -1.0 * PI);
 
         assertTrue(expectedA.equals(converted) || expectedB.equals(converted));
         assertEquals(1.0, converted.getRadius(), accuracy);
@@ -209,15 +211,15 @@ public class AbstractCoordinateTest {
         double theta = PI / 2.0;
         double phi = PI;
 
-        SphericalCoordinate sphericalA = new SphericalCoordinate(radius, theta, phi);
+        SphericalCoordinate sphericalA = newSphericalCoordinate(radius, theta, phi);
         CartesianCoordinate convertedA = sphericalA.asCartesianCoordinate();
 
-        SphericalCoordinate sphericalB = new SphericalCoordinate(radius, theta, -1.0 * phi);
+        SphericalCoordinate sphericalB = newSphericalCoordinate(radius, theta, -1.0 * phi);
         CartesianCoordinate convertedB = sphericalB.asCartesianCoordinate();
 
 
         // expected:
-        CartesianCoordinate expected = new CartesianCoordinate(-1.0, 0.0, 0.0);
+        CartesianCoordinate expected = newCartesianCoordinate(-1.0, 0.0, 0.0);
 
 
         CartesianCoordinateTest.assertEqualCartesian(expected, convertedA);
@@ -274,9 +276,9 @@ public class AbstractCoordinateTest {
 
 
         for (int i = 0; i < loopCount; i++) {
-            SphericalCoordinate a = new SphericalCoordinate(
+            SphericalCoordinate a = newSphericalCoordinate(
                     randomRadius.next(), randomSmallTheta.next(), randomPhi.next());
-            SphericalCoordinate b = new SphericalCoordinate(
+            SphericalCoordinate b = newSphericalCoordinate(
                     randomRadius.next(), randomLargeTheta.next(), randomPhi.next());
 
             System.out.println("Inspecting angle between\n\t" + a.toString()

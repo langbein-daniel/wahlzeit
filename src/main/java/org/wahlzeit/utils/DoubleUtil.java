@@ -1,5 +1,7 @@
 package org.wahlzeit.utils;
 
+import org.wahlzeit.contract.AssertArgument;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -14,7 +16,7 @@ public class DoubleUtil {
      * @return smallest positive remainder of "floorDiv(x, y)"
      */
     public static double posRemainder(double x, double y, final int scale) {
-        assertArgumentIsPositiveFinite(y);
+        AssertArgument.isPositiveFinite(y);
 
         if (x >= y) {
             return x % y;
@@ -56,7 +58,7 @@ public class DoubleUtil {
         // if a and b are the same reference
         if (a == b) return 0;
 
-        assertArgumentIsPositiveFinite(scale);
+        AssertArgument.isPositiveFinite(scale);
         BigDecimal aRounded = doRoundAsBigDecimal(a, scale);
         BigDecimal bRounded = doRoundAsBigDecimal(b, scale);
         return aRounded.compareTo(bRounded);
@@ -81,7 +83,7 @@ public class DoubleUtil {
      * @methodproperties composed
      */
     public static BigDecimal roundAsBigDecimal(double value, int scale) {
-        assertArgumentIsPositiveFinite(scale);
+        AssertArgument.isPositiveFinite(scale);
         return doRoundAsBigDecimal(value, scale);
     }
 
@@ -94,34 +96,9 @@ public class DoubleUtil {
     }
 
 
-    //====== Assertions ======
-
     /**
-     * @methodtype assertion
-     * @methodproperties composed
-     * <p>
-     * Can be used to assert that some double argument is not negative, infinite or NaN
+     * @return True if the double argument is neither negative, infinite or NaN
      */
-    public static void assertArgumentIsPositiveFinite(double d) throws IllegalArgumentException {
-        assertArgumentIsPositiveFinite(d, "negative double value");
-    }
-
-    public static void assertArgumentIsPositiveFinite(double d, String message) throws IllegalArgumentException {
-        if (!isPositiveFinite(d)) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    public static void assertResultIsFinite(double d){
-        assertResultIsFinite(d, "infinite or NaN double value");
-    }
-
-    public static void assertResultIsFinite(double d, String message){
-        if(!Double.isFinite(d)){
-            throw new ArithmeticException(message);
-        }
-    }
-
     public static boolean isPositiveFinite(double d) throws IllegalStateException {
         return Double.isFinite(d) && d >= 0.0;
     }

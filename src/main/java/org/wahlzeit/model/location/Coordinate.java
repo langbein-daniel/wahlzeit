@@ -1,8 +1,11 @@
 package org.wahlzeit.model.location;
 
-import org.wahlzeit.services.Persistent;
+import org.wahlzeit.utils.Immutable;
 
-public interface Coordinate extends Persistent, Cloneable {
+/**
+ * All implementing Coordinate classes shall be immutable
+ */
+public interface Coordinate extends Immutable {
 
     /**
      * @throws IllegalStateException if the class invariants of this object are not adhered
@@ -39,6 +42,4 @@ public interface Coordinate extends Persistent, Cloneable {
      * @throws NullPointerException  if the given Coordinate "other" is null
      */
     boolean isEqual(Coordinate other) throws IllegalStateException, NullPointerException;
-
-    Object clone();
 }
