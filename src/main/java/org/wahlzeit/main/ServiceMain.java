@@ -21,6 +21,7 @@
 package org.wahlzeit.main;
 
 import org.wahlzeit.agents.AgentManager;
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.handlers.*;
 import org.wahlzeit.model.*;
 import org.wahlzeit.webparts.*;
@@ -29,6 +30,10 @@ import org.wahlzeit.services.*;
 /**
  * A Main class that runs a Wahlzeit web server.
  */
+@PatternInstance(
+		patternName = "Singleton",
+		participants = ServiceMain.class
+)
 public class ServiceMain extends ModelMain {
 	
 	/**
