@@ -1,10 +1,15 @@
 package org.wahlzeit.model;
 
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.services.SysLog;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@PatternInstance(
+        patternName = "Singleton",
+        participants = LandscapePhotoManager.class
+)
 public class LandscapePhotoManager extends PhotoManager {
     /*
      * Note on Inheritance:

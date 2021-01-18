@@ -1,6 +1,7 @@
 package org.wahlzeit.model.location;
 
 import org.wahlzeit.contract.AssertResult;
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.utils.DoubleUtil;
 
 import java.util.*;
@@ -11,6 +12,10 @@ import java.util.*;
  * Center/Origin of coordinate-system: Center of mass of the Earth
  * Unit (of x, y, z values): Meters
  */
+@PatternInstance(
+        patternName = "Flyweight",
+        participants = CartesianCoordinate.class
+)
 public class CartesianCoordinate extends AbstractCoordinate {
     public static final CartesianCoordinate CENTER = new CartesianCoordinate(0.0, 0.0, 0.0);
 

@@ -23,6 +23,7 @@ package org.wahlzeit.model;
 import java.sql.*;
 import java.net.*;
 
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.model.location.Location;
 import org.wahlzeit.services.*;
 import org.wahlzeit.utils.*;
@@ -30,6 +31,10 @@ import org.wahlzeit.utils.*;
 /**
  * A photo represents a user-provided (uploaded) photo.
  */
+@PatternInstance(
+        patternName = "Abstract Factory",
+        participants = {PhotoFactory.class, LandscapePhotoFactory.class, Photo.class, LandscapePhoto.class}
+)
 public class Photo extends DataObject {
 
     /**

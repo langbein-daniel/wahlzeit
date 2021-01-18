@@ -1,5 +1,6 @@
 package org.wahlzeit.model.location;
 
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.utils.DoubleUtil;
 
 import java.util.HashMap;
@@ -15,6 +16,10 @@ import static java.lang.Math.PI;
  * Unit (of radius): Meters
  * Unit (of phi and theta): radians (rad)
  */
+@PatternInstance(
+        patternName = "Flyweight",
+        participants = SphericalCoordinate.class
+)
 public class SphericalCoordinate extends AbstractCoordinate {
     private static final Map<Integer, SphericalCoordinate> sharedObjects = new HashMap<>();
 

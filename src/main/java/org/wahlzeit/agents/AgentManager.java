@@ -22,11 +22,16 @@ package org.wahlzeit.agents;
 
 import java.util.*;
 
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.services.SysLog;
 
 /**
  * The AgentManager singleton manages all Agent instances.
  */
+@PatternInstance(
+		patternName = "Singleton",
+		participants = AgentManager.class
+)
 public class AgentManager {
 	
 	/**

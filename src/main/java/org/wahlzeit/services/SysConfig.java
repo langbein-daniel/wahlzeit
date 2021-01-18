@@ -20,11 +20,17 @@
 
 package org.wahlzeit.services;
 
+import org.wahlzeit.contract.PatternInstance;
+
 import java.io.*;
 
 /**
  * A basic set of system configuration data
  */
+@PatternInstance(
+		patternName = "Singleton",
+		participants = SysConfig.class
+)
 public class SysConfig extends AbstractConfig {
 	
 	/**

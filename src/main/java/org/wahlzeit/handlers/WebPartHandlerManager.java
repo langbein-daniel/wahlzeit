@@ -20,12 +20,18 @@
 
 package org.wahlzeit.handlers;
 
+import org.wahlzeit.contract.PatternInstance;
+
 import java.util.*;
 
 
 /**
  * A manager class for web parts.
  */
+@PatternInstance(
+		patternName = "Singleton",
+		participants = WebPartHandlerManager.class
+)
 public class WebPartHandlerManager {
 	
 	/**

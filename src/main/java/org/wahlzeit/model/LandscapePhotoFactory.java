@@ -1,10 +1,15 @@
 package org.wahlzeit.model;
 
+import org.wahlzeit.contract.PatternInstance;
 import org.wahlzeit.services.SysLog;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@PatternInstance(
+        patternName = "Abstract Factory",
+        participants = {PhotoFactory.class, LandscapePhotoFactory.class, Photo.class, LandscapePhoto.class}
+)
 public class LandscapePhotoFactory extends PhotoFactory {
     /**
      * Public singleton access method.

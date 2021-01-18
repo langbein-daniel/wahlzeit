@@ -1,9 +1,6 @@
 package org.wahlzeit.model.location;
 
-import org.wahlzeit.contract.AssertArgument;
-import org.wahlzeit.contract.AssertResult;
-import org.wahlzeit.contract.NotNull;
-import org.wahlzeit.contract.Nullable;
+import org.wahlzeit.contract.*;
 import org.wahlzeit.utils.*;
 
 import java.sql.ResultSet;
@@ -112,6 +109,7 @@ public abstract class AbstractCoordinate implements Coordinate {
         return doIsEqual(other);
     }
 
+    @PatternMethod(patternName = "Template Method")
     protected boolean doIsEqual(@NotNull Coordinate other) {
         String thisCartesianString = doAsCartesianCoordinate().toString();
         String otherCartesianString = other.asCartesianCoordinate().toString();
