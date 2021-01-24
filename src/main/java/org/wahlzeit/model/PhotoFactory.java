@@ -23,6 +23,8 @@ package org.wahlzeit.model;
 import java.sql.*;
 
 import org.wahlzeit.contract.PatternInstance;
+import org.wahlzeit.model.landscape.LandscapePhoto;
+import org.wahlzeit.model.landscape.LandscapePhotoFactory;
 import org.wahlzeit.services.*;
 
 /**

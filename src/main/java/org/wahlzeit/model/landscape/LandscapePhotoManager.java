@@ -1,10 +1,8 @@
-package org.wahlzeit.model;
+package org.wahlzeit.model.landscape;
 
 import org.wahlzeit.contract.PatternInstance;
+import org.wahlzeit.model.PhotoManager;
 import org.wahlzeit.services.SysLog;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @PatternInstance(
         patternName = "Singleton",

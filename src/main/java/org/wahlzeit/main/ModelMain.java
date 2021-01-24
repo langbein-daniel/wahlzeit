@@ -25,6 +25,8 @@ import java.io.FileFilter;
 import java.sql.*;
 
 import org.wahlzeit.model.*;
+import org.wahlzeit.model.landscape.LandscapePhotoFactory;
+import org.wahlzeit.model.landscape.LandscapePhotoManager;
 import org.wahlzeit.services.*;
 import org.wahlzeit.servlets.AbstractServlet;
 

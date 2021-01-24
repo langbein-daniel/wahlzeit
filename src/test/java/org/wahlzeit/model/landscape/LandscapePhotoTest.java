@@ -1,6 +1,12 @@
-package org.wahlzeit.model;
+package org.wahlzeit.model.landscape;
 
 import org.junit.Test;
+import org.wahlzeit.model.Photo;
+import org.wahlzeit.model.PhotoFactory;
+import org.wahlzeit.model.PhotoManager;
+import org.wahlzeit.model.landscape.LandscapePhoto;
+import org.wahlzeit.model.landscape.LandscapePhotoFactory;
+import org.wahlzeit.model.landscape.LandscapePhotoManager;
 import org.wahlzeit.model.location.Location;
 
 import static org.junit.Assert.*;

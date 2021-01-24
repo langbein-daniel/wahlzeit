@@ -24,6 +24,8 @@ import java.sql.*;
 import java.net.*;
 
 import org.wahlzeit.contract.PatternInstance;
+import org.wahlzeit.model.landscape.LandscapePhoto;
+import org.wahlzeit.model.landscape.LandscapePhotoFactory;
 import org.wahlzeit.model.location.Location;
 import org.wahlzeit.services.*;
 import org.wahlzeit.utils.*;

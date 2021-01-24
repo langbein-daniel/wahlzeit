@@ -1,6 +1,9 @@
-package org.wahlzeit.model;
+package org.wahlzeit.model.landscape;
 
 import org.wahlzeit.contract.PatternInstance;
+import org.wahlzeit.model.Photo;
+import org.wahlzeit.model.PhotoFactory;
+import org.wahlzeit.model.PhotoId;
 import org.wahlzeit.services.SysLog;
 
 import java.sql.ResultSet;
