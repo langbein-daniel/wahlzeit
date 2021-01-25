@@ -25,6 +25,7 @@ import java.io.FileFilter;
 import java.sql.*;
 
 import org.wahlzeit.model.*;
+import org.wahlzeit.model.landscape.LandscapeId;
 import org.wahlzeit.model.landscape.LandscapePhotoFactory;
 import org.wahlzeit.model.landscape.LandscapePhotoManager;
 import org.wahlzeit.services.*;
@@ -130,6 +131,9 @@ public abstract class ModelMain extends AbstractMain {
 			int lastPhotoId = result.getInt("last_photo_id");
 			PhotoId.setCurrentIdFromInt(lastPhotoId);
 			SysLog.logSysInfo("loaded global variable lastPhotoId: " + lastPhotoId);
+			int nextLandscapeId = result.getInt("next_landscape_id");
+			LandscapeId.setNextLandscapeId(nextLandscapeId);
+			SysLog.logSysInfo("loaded global variable nextLandscapeId: " + nextLandscapeId);
 			int lastCaseId = result.getInt("last_case_id");
 			Case.setLastCaseId(new CaseId(lastCaseId));
 			SysLog.logSysInfo("loaded global variable lastCaseId: " + lastCaseId);
@@ -162,6 +166,9 @@ public abstract class ModelMain extends AbstractMain {
 			int lastPhotoId = PhotoId.getCurrentIdAsInt();
 			rset.updateInt("last_photo_id", lastPhotoId);
 			SysLog.logSysInfo("saved global variable lastPhotoId: " + lastPhotoId);
+			int nextLandscapeId = LandscapeId.getNextLandscapeId();
+			rset.updateInt("next_landscape_id", nextLandscapeId);
+			SysLog.logSysInfo("saved global variable nextLandscapeId: " + nextLandscapeId);
 			int lastCaseId = Case.getLastCaseId().asInt();
 			rset.updateInt("last_case_id", lastCaseId);
 			SysLog.logSysInfo("saved global variable lastCaseId: " + lastCaseId);

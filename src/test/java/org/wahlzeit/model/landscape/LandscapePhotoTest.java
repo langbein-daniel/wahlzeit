@@ -58,4 +58,17 @@ public class LandscapePhotoTest {
 
         assertEquals(Location.DEFAULT_COORDINATE, location.getCoordinate());
     }
+
+    @Test
+    public void testPhotoWithLandscape(){
+        /*
+         * Both singletons of PhotoManager and PhotoFactory are created inside ModelMain.startUp() by the following two calls:
+         */
+        LandscapePhotoFactory.initialize();
+        LandscapePhotoManager.initialize();
+
+        LandscapePhoto photo = (LandscapePhoto) PhotoFactory.getInstance().createPhoto();
+        Landscape l1 = LandscapeManager.createLandscape("desert",TimeOfDay.NIGHT,Season.SUMMER);
+        photo.setLandscape(l1);
+    }
 }

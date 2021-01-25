@@ -47,4 +47,12 @@ public class LandscapeTypeTest {
         assertSame(t1,t2);
         assertSame(t11,t12);
     }
+
+    @Test
+    public void testIsSame(){
+        LandscapeType t1 = LandscapeManager.getLandscapeType("mountains");
+        LandscapeType t2 = LandscapeManager.getLandscapeType("mountains", LandscapeManager.getLandscapeType());
+
+        assertSame(t1,t2);
+    }
 }

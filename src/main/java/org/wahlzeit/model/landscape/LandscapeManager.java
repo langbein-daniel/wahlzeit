@@ -20,20 +20,23 @@ public class LandscapeManager {
      */
     private static final Map<Path, LandscapeType> landscapeTypes = new HashMap<>();
 
-
+    /**
+     * Creates a Landscape of type /landscape/"typeName"
+     */
     public static Landscape createLandscape(String typeName, TimeOfDay time, Season season) {
-        return createLandscape(typeName, getLandscapeType(), time, season);
+        return createLandscape(getLandscapeType(typeName), time, season);
     }
 
+    /**
+     * Creates a Landscape of type "superType"/"typeName"
+     */
     public static Landscape createLandscape(String typeName, LandscapeType superType, TimeOfDay time, Season season) {
-        assertIsValidTypeName(typeName);
-        AssertArgument.notNull(superType);
-        AssertArgument.notNull(time);
-        AssertArgument.notNull(season);
-
-        return doCreateLandscape(getLandscapeType(typeName, superType), time, season);
+        return createLandscape(getLandscapeType(typeName, superType), time, season);
     }
 
+    /**
+     * Creates a Landscape of type "lt"
+     */
     public static Landscape createLandscape(LandscapeType lt, TimeOfDay time, Season season) {
         AssertArgument.notNull(lt);
         AssertArgument.notNull(time);
@@ -49,10 +52,16 @@ public class LandscapeManager {
         return result;
     }
 
+    private static Landscape doCreateLandscape(int landscapeId, LandscapeType lt, TimeOfDay time, Season season) {
+        Landscape result = lt.createInstance(landscapeId, time, season);
+        landscapes.put(result.getId(), result);
+        return result;
+    }
+
     /**
-     * @return The top-level LandscapeType | The most general LandscapeType
+     * @return The top-level LandscapeType "/landscape" | The most general LandscapeType
      */
-    protected static LandscapeType getLandscapeType() {
+    public static LandscapeType getLandscapeType() {
         LandscapeType result = landscapeTypes.get(LandscapeType.ROOT);
 
         if (result == null) {
@@ -63,14 +72,21 @@ public class LandscapeManager {
         return result;
     }
 
-    protected static LandscapeType getLandscapeType(String typeName){
+    /**
+     * @return The LandscapeType /landscape/"typeName"
+     */
+    public static LandscapeType getLandscapeType(String typeName){
+        /* typeName is checked inside next getLandscapeType */
         return getLandscapeType(typeName, getLandscapeType());
     }
 
     /**
-     * @return A LandscapeType with name typeName and parent type superType
+     * @return The LandscapeType "superType"/"typeName"
      */
-    protected static LandscapeType getLandscapeType(String typeName, LandscapeType superType) {
+    public static LandscapeType getLandscapeType(String typeName, LandscapeType superType) {
+        assertIsValidTypeName(typeName);
+        AssertArgument.notNull(superType);
+
         Path path = superType.asPath().resolve(typeName);
         LandscapeType result = landscapeTypes.get(path);
 
@@ -96,22 +112,25 @@ public class LandscapeManager {
         String typeAsPath = rset.getString("landscape_type_path");
         if(typeAsPath.equals("")) return null;  // no landscape was saved
 
+        int landscapeId = rset.getInt("landscape_id");
         TimeOfDay time = TimeOfDay.valueOf(rset.getString("landscape_time"));
         Season season = Season.valueOf(rset.getString("landscape_season"));
 
         LandscapeType lt = getLandscapeTypeFromPath(Paths.get(typeAsPath));
-        return createLandscape(lt, time, season);
+        return doCreateLandscape(landscapeId, lt, time, season);
     }
 
     protected static void toRset(ResultSet rset, Landscape landscape) throws SQLException {
         if(landscape==null){
             rset.updateString("landscape_type_path", "");
+            rset.updateInt("landscape_id", 0);
             rset.updateString("landscape_time", "");
             rset.updateString("landscape_season", "");
             return;
         }
 
         rset.updateString("landscape_type_path", landscape.getType().asPath().toString());
+        rset.updateInt("landscape_id", landscape.getId());
         rset.updateString("landscape_time", landscape.getTime().toString());
         rset.updateString("landscape_season", landscape.getSeason().toString());
     }

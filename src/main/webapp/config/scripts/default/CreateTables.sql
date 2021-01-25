@@ -30,6 +30,7 @@ CREATE TABLE photos (
     coordinate_y double precision,
     coordinate_z double precision,
     landscape_type_path text,
+    landscape_id integer,
     landscape_time text,
     landscape_season text,
 	status integer,
@@ -58,12 +59,13 @@ CREATE TABLE globals (
 	id integer PRIMARY KEY,
 	last_user_id integer,
 	last_photo_id integer,
+	next_landscape_id integer,
 	last_case_id integer,
 	last_session_id integer
 );
 
-INSERT INTO globals (id, last_user_id, last_photo_id, last_case_id, last_session_id)
-	VALUES (0, 1, 0, 0, 0);
+INSERT INTO globals (id, last_user_id, last_photo_id, next_landscape_id, last_case_id, last_session_id)
+	VALUES (0, 1, 0, 1, 0, 0);
 
 INSERT INTO users (id, name, name_as_tag, email_address, "password", rights, status)
 	VALUES (1, 'admin', 'admin', 'root@localhost', 'admin', 4, 1);

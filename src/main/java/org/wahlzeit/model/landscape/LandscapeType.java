@@ -27,6 +27,10 @@ public class LandscapeType implements Immutable, Comparable<LandscapeType>{
         return new Landscape(this, time, season);
     }
 
+    protected Landscape createInstance(int landscapeId, TimeOfDay time, Season season){
+        return new Landscape(landscapeId, this, time, season);
+    }
+
 
     Path asPath() {
         if(!hasSuperType()){

@@ -2,8 +2,6 @@ package org.wahlzeit.model.landscape;
 
 import org.wahlzeit.utils.Immutable;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Types of Landscapes:
  * <p>
@@ -25,9 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Season
  */
 public class Landscape implements Immutable {
-    private static AtomicInteger idCounter = new AtomicInteger(0);
-
-
     private final LandscapeType type;
     private final int id;
 
@@ -36,8 +31,12 @@ public class Landscape implements Immutable {
 
 
     protected Landscape(LandscapeType type, TimeOfDay time, Season season) {
+        this(LandscapeId.getUniqueId(), type, time, season);
+    }
+
+    protected Landscape(int landscapeId, LandscapeType type, TimeOfDay time, Season season) {
+        this.id = landscapeId;
         this.type = type;
-        this.id = idCounter.getAndIncrement();
 
         this.time = time;
         this.season = season;
