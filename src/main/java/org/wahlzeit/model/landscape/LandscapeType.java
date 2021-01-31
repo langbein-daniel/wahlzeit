@@ -50,6 +50,9 @@ public class LandscapeType implements Immutable, Comparable<LandscapeType>{
     }
 
 
+    /**
+     * Tests whether one type is a subtype of another. Any type is considered to be a subtype of itself.
+     */
     public boolean isSubtype(LandscapeType superType){
         AssertArgument.notNull(superType);
         return doIsSubtype(superType);

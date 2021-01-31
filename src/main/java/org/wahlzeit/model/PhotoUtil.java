@@ -108,7 +108,7 @@ public class PhotoUtil {
 	}
 
 	/**
-	 * 
+	 * @methodtype assertion
 	 */
 	protected static void assertHasValidSize(int cw, int ch) {
 		if (PhotoSize.THUMB.isWiderAndHigher(cw, ch)) {

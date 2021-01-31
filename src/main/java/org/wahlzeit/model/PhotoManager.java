@@ -148,7 +148,7 @@ public class PhotoManager extends ObjectManager {
     }
 
     /**
-     *
+     * this.getPhotoFromID -> this.readObject -> this.createObject
      */
     protected Photo createObject(ResultSet rset) throws SQLException {
         return PhotoFactory.getInstance().createPhoto(rset);

@@ -26,6 +26,9 @@ public class LandscapeTypeTest {
         LandscapeType alps = LandscapeManager.getLandscapeType("alps", mountains);
         LandscapeType zugspitze = LandscapeManager.getLandscapeType("zugspitze", alps);
 
+        // Any type is considered to be a subtype of itself.
+        assertTrue(generalLandscape.isSubtype(generalLandscape));
+        assertTrue(alps.isSubtype(alps));
 
         assertTrue(alps.isSubtype(mountains));
         assertTrue(zugspitze.isSubtype(mountains));
