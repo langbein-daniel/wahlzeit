@@ -46,7 +46,7 @@ public class LandscapePhotoFactory extends PhotoFactory {
     }
 
     /**
-     *
+     * @cw11 2.1.2. The factory instantiates a new photo object in-code.
      */
     @Override
     public LandscapePhoto createPhoto(PhotoId id) {

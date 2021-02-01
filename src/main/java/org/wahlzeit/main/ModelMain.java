@@ -49,6 +49,10 @@ public abstract class ModelMain extends AbstractMain {
 		
  		loadGlobals();
 
+		/**
+		 * @cw11 0. PhotoManager and PhotoFactory singletons are initialized,
+		 * in this case with the domain specific variants
+		 */
 		LandscapePhotoFactory.initialize();
 		LandscapePhotoManager.initialize();
 	}

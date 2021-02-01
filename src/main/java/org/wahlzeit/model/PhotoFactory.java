@@ -91,7 +91,7 @@ public class PhotoFactory {
     }
 
     /**
-     *
+     * @cw11 2.1.2. The factory instantiates a new photo object in-code.
      */
     public Photo createPhoto(PhotoId id) {
         return new Photo(id);

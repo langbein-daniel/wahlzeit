@@ -53,6 +53,10 @@ public class PhotoManager extends ObjectManager {
     protected PhotoTagCollector photoTagCollector;
 
     /**
+     * @cw11 1. Get the PhotoManager/LandscapePhotoManager singleton. Depending on if PhotoManager.initialize()
+     * or LandscapePhotoManager.initialize() was initially called, this will return a reference to the corresponding
+     * manager singleton.
+     * <p>
      * Public singleton access method.
      */
     public static synchronized PhotoManager getInstance() {
@@ -359,7 +363,7 @@ public class PhotoManager extends ObjectManager {
     }
 
     /**
-     *
+     * @cw11 2. Reserve an unique photo id and delegate the object creation to the PhotoUtil class
      */
     public Photo createPhoto(File file) throws Exception {
         PhotoId id = PhotoId.getNextId();
